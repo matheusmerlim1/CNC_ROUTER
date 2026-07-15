@@ -69,6 +69,7 @@ function testEstrutura(){
     const keys = [...html.matchAll(/data-rk="([^"]+)"/g)].map(m=>m[1]);
     assert.equal(new Set(keys).size, keys.length, `${file}: data-rk duplicado`);
     assert(!/<style[\s>]/i.test(html), `${file}: CSS inline em bloco`);
+    assert(!/="var\(--/.test(html), `${file}: var() em atributo de apresentação — pinte por classe`);
     for (const match of html.matchAll(/<(?:script|link)[^>]+(?:src|href)="([^"]+)"/g)){
       const ref = match[1];
       if (!/^(?:https?:|mailto:|#)/.test(ref)) assert(fs.existsSync(path.join(root,ref)), `${file}: ativo ausente ${ref}`);
@@ -123,11 +124,12 @@ async function testConfigurador(){
         if(!(total>0&&Number.isFinite(total))) throw new Error("total inválido");
         menor=Math.min(menor,total); maior=Math.max(maior,total); combinacoes++;
       }
-    let desenhos=0;
+    let desenhos=0, svgExemplo="";
     for(const x of LENS) for(const y of LENS) for(const z of ZLENS){
       Object.assign(state,{x,y,z}); draw3D();
       const svg=document.getElementById("viz").innerHTML;
       if(svg.includes("NaN")||!svg.includes("<polygon")) throw new Error("SVG inválido");
+      svgExemplo=svg;
       desenhos++;
     }
     Object.assign(state,{mat:"aluminio",trans:"fuso",motor:"closed34",perfil:"p4040r",x:700,y:500,z:400,modo:"montador"});
@@ -142,7 +144,7 @@ async function testConfigurador(){
     contato.nome="Fulano"; contato.email="fulano@exemplo.com"; contato.whats="(22) 90000-0000";
     const excel=buildExcelXml();
     return {combinacoes,desenhos,menor,maior,baseHoras:base.qty,baseValor:base.qty*base.price,
-      grandeHoras:grande.qty,montadorLock,clienteLock,xml:excel.xml,nome:excel.nome};
+      grandeHoras:grande.qty,montadorLock,clienteLock,svg:svgExemplo,xml:excel.xml,nome:excel.nome};
   })()`,context);
   assert.equal(stats.combinacoes,5400);
   assert.equal(stats.desenhos,75);
@@ -152,6 +154,10 @@ async function testConfigurador(){
   // modos: só o montador edita a mão de obra
   assert.equal(stats.montadorLock,false,"no modo montador a mão de obra deve ser editável");
   assert.equal(stats.clienteLock,true,"no modo cliente a mão de obra não pode ser editável");
+  // o desenho pinta por classe: var() em atributo de apresentação falha em parte dos navegadores
+  // e o fallback silencioso pintaria a máquina de preto
+  assert(!/="var\(--/.test(stats.svg),"desenho não pode usar var() em atributo de apresentação");
+  assert(stats.svg.includes('class="m1"')&&stats.svg.includes('class="corpo"'),"desenho deve pintar por classe");
   // a planilha precisa levar quem pediu e para onde responder
   assert(stats.xml.includes("DADOS DO SOLICITANTE"),"Excel sem o bloco do solicitante");
   assert(stats.xml.includes("Fulano")&&stats.xml.includes("fulano@exemplo.com"),"Excel sem os dados de contato preenchidos");

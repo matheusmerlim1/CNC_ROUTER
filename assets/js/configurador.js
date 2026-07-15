@@ -167,46 +167,81 @@ function buildBOM(){
   return rows;
 }
 
-/* ---------- visualização 3D isométrica ---------- */
+/* ---------- desenho isométrico da máquina ----------
+   Mesma máquina da landing, mas dirigida pelo X/Y/Z escolhidos. As cores vêm dos tokens
+   de base.css, então o desenho acompanha o tema. viewBox calculado pelo conteúdo real. */
 function draw3D(){
   const X=state.x, Y=state.y, Zc=state.z;
-  const W=780, Hpx=430, C=0.866, S=0.5;
-  const mesaH=90, colW=90, colD=70, travH=90, colH=200+Zc, zLen=Zc+140, gx=(X-colW)/2;
-  const Zmax=mesaH+colH+travH;
-  const k=Math.min((W-190)/((X+Y)*C), (Hpx-70)/((X+Y)*S+Zmax));
-  const ox=30+(Y+colD)*C*k, oy=30+Zmax*k;
-  const P=(x,y,z)=>[(ox+(x-y)*C*k).toFixed(1), (oy+(x+y)*S*k-z*k).toFixed(1)];
-  const poly=(pts,fill)=>`<polygon points="${pts.map(p=>p.join(",")).join(" ")}" fill="${fill}" stroke="rgba(0,0,0,.28)" stroke-width="1" stroke-linejoin="round"/>`;
-  // caixa com 3 faces visíveis: topo, direita (+X) e esquerda (+Y)
-  const box=(x,y,z,dx,dy,dz,c3)=>
-    poly([P(x,y,z+dz),P(x+dx,y,z+dz),P(x+dx,y+dy,z+dz),P(x,y+dy,z+dz)],c3[0])+
-    poly([P(x+dx,y,z),P(x+dx,y+dy,z),P(x+dx,y+dy,z+dz),P(x+dx,y,z+dz)],c3[1])+
-    poly([P(x,y+dy,z),P(x+dx,y+dy,z),P(x+dx,y+dy,z+dz),P(x,y+dy,z+dz)],c3[2]);
-  const MESA=["#cdd5e1","#a9b3c5","#8d97ab"], ACO=["#9aa6ba","#7b8699","#646e81"],
-        ZCOR=["#8db8ff","#5289ea","#3d6fc8"], TRILHO=["#b3bccb","#929cae","#7a8496"];
-  let s="";
-  s+=box(0,0,0,X,Y,mesaH,MESA);
-  s+=box(0,18,mesaH,X,44,22,TRILHO);
-  s+=box(0,Y-62,mesaH,X,44,22,TRILHO);
-  s+=box(gx,-colD,0,colW,colD,mesaH+colH,ACO);
-  s+=box(gx,-colD,mesaH+colH,colW,Y+2*colD,travH,ACO);
-  s+=box(gx+16,Y/2-50,mesaH+colH+travH-14-zLen,colW-32,100,zLen,ZCOR);
-  s+=box(gx+30,Y/2-28,mesaH+colH+travH-14-zLen-70,44,56,70,["#5f6b80","#4c5668","#3d4554"]);
-  s+=box(gx,Y,0,colW,colD,mesaH+colH,ACO);
-  const arrow=(p1,p2,cor,label,dxT,dyT)=>
-    `<line x1="${p1[0]}" y1="${p1[1]}" x2="${p2[0]}" y2="${p2[1]}" stroke="${cor}" stroke-width="2.5" marker-start="url(#ah-${cor.slice(1)})" marker-end="url(#ah-${cor.slice(1)})"/>`+
-    `<text x="${(+p1[0]+ +p2[0])/2+dxT}" y="${(+p1[1]+ +p2[1])/2+dyT}" fill="${cor}" font-size="14" font-weight="700" text-anchor="middle">${label}</text>`;
-  const mk=c=>`<marker id="ah-${c.slice(1)}" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" fill="${c}"/></marker>`;
+  const C=0.866, S=0.5, k=0.30;
+  const baseH=78, topH=20, railW=Math.min(40, Y*0.07), railH=16;
+  const colW=78, colD=62, colH=200+Zc, beamH=84;
+  const gx=(X-colW)/2, zW=64, zLen=Zc+120;
+  const zTop=baseH+topH, beamZ=zTop+colH, zEnd=beamZ+beamH-10;
+
+  const pts=[];
+  const P=(x,y,z)=>{const p=[(x-y)*C*k,(x+y)*S*k-z*k];pts.push(p);return p;};
+  const n=v=>v.toFixed(1);
+  const out=[];
+  // pinta por classe (regras em base.css): var() em atributo de apresentação tem suporte irregular
+  const poly=(pp,cls,extra="")=>out.push(`<polygon points="${pp.map(p=>`${n(p[0])},${n(p[1])}`).join(" ")}" class="${cls}"${extra}/>`);
+  const line=(a,b,cls,w)=>out.push(`<line x1="${n(a[0])}" y1="${n(a[1])}" x2="${n(b[0])}" y2="${n(b[1])}" class="${cls}" stroke-width="${w}" stroke-linecap="round"/>`);
+  const box=(x,y,z,dx,dy,dz,c)=>{
+    poly([P(x,y,z+dz),P(x+dx,y,z+dz),P(x+dx,y+dy,z+dz),P(x,y+dy,z+dz)],c[0]);
+    poly([P(x+dx,y,z),P(x+dx,y+dy,z),P(x+dx,y+dy,z+dz),P(x+dx,y,z+dz)],c[1]);
+    poly([P(x,y+dy,z),P(x+dx,y+dy,z),P(x+dx,y+dy,z+dz),P(x,y+dy,z+dz)],c[2]);
+  };
+  const M=["m1","m2","m3"], TP=["tp1","tp2","tp3"], A=["a1","a2","a3"], T=["t1","t2","t3"];
+  const F=["f1","f2","f3"], W=["w1","w2","w3"], Zc3=["z1","z2","z3"], SP=["s1","s2","s3"];
+
+  box(0,0,0,X,Y,baseH,M);                                   // base
+  box(-10,-10,baseH,X+20,Y+20,topH,TP);                     // tampo
+  const nSlots=Math.max(3,Math.min(9,Math.round(Y/110)));   // rasgos T acompanham a largura
+  for(let i=1;i<=nSlots;i++){
+    const yy=(Y/(nSlots+1))*i;
+    line(P(-4,yy,zTop),P(X+4,yy,zTop),"slot",2.2);
+  }
+  box(-6,-4,baseH+4,X+12,9,9,F);                            // fuso do X
+  box(-6,22,zTop,X+12,railW,railH,T);                       // trilho frente
+  box(-6,Y-22-railW,zTop,X+12,railW,railH,T);               // trilho fundo
+  // peça em usinagem, proporcional à mesa
+  const pw=Math.min(X*0.34,360), pd=Math.min(Y*0.36,240), ph=26;
+  const px=gx-pw*0.62, py=Y/2-pd/2;
+  box(px,py,zTop,pw,pd,ph,W);
+  const inset=Math.min(34,pw*0.12,pd*0.12);
+  poly([P(px+inset,py+inset,zTop+ph),P(px+pw-inset,py+inset,zTop+ph),
+        P(px+pw-inset,py+pd-inset,zTop+ph),P(px+inset,py+pd-inset,zTop+ph)],
+       "cut",' stroke-width="1.4"');
+  box(gx,-colD,zTop,colW,colD,colH,A);                      // coluna frente
+  box(gx-4,-colD-4,beamZ,colW+8,Y+2*colD+8,beamH,A);        // travessa
+  box(gx-7,-colD-2,beamZ+18,6,Y+2*colD+4,14,T);             // trilho da travessa
+  box(gx+(colW-zW)/2,Y/2-46,zEnd-zLen,zW,92,zLen,Zc3);      // eixo Z
+  const spx=gx+(colW-46)/2, spy=Y/2-28, spZ=zEnd-zLen-96;
+  box(spx,spy,spZ,46,52,96,SP);                             // spindle
+  box(spx+12,spy+14,spZ-16,22,24,16,["c1","c2","c3"]);      // pinça
+  box(spx+18,spy+19,spZ-42,10,14,26,["tool1","tool2","tool3"]); // fresa
+  box(gx,Y,zTop,colW,colD,colH,A);                          // coluna fundo
+
+  // cotas
   const CX="#e5484d", CY="#2f9e63", CZ="#3b82f6";
-  const defs=`<defs>${mk(CX)}${mk(CY)}${mk(CZ)}</defs>`;
-  let ar="";
-  ar+=arrow(P(0,-colD-120,0),P(X,-colD-120,0),CX,`X ${(X/1000).toLocaleString("pt-BR")} m`,26,-8);
-  ar+=arrow(P(X+150,0,0),P(X+150,Y,0),CY,`Y ${(Y/1000).toLocaleString("pt-BR")} m`,-34,26);
-  const zx=gx+colW/2, zy=Y+colD+130;
-  ar+=arrow(P(zx,zy,mesaH),P(zx,zy,mesaH+Zc),CZ,`Z ${Zc} mm`,-52,4);
+  const mk=c=>`<marker id="ah-${c.slice(1)}" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" fill="${c}"/></marker>`;
+  const cota=(p1,p2,cor,label,dxT,dyT)=>
+    `<line x1="${n(p1[0])}" y1="${n(p1[1])}" x2="${n(p2[0])}" y2="${n(p2[1])}" stroke="${cor}" stroke-width="2" marker-start="url(#ah-${cor.slice(1)})" marker-end="url(#ah-${cor.slice(1)})"/>`+
+    `<text x="${n((p1[0]+p2[0])/2+dxT)}" y="${n((p1[1]+p2[1])/2+dyT)}" fill="${cor}" font-size="15" font-weight="600" class="cota" text-anchor="middle">${label}</text>`;
+  const fx=v=>(v/1000).toLocaleString("pt-BR");
+  const ar=
+    cota(P(0,-colD-130,0),P(X,-colD-130,0),CX,`X ${fx(X)} m`,20,-9)+
+    cota(P(X+140,0,0),P(X+140,Y,0),CY,`Y ${fx(Y)} m`,26,20)+
+    cota(P(gx+colW/2,Y+colD+150,zTop),P(gx+colW/2,Y+colD+150,zTop+Zc),CZ,`Z ${Zc} mm`,-46,4);
+
+  const xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]);
+  const pad=14;
+  const minX=Math.min(...xs)-pad, minY=Math.min(...ys)-pad;
+  const w=Math.max(...xs)-minX+pad, h=Math.max(...ys)-minY+pad+22;
   document.getElementById("viz").innerHTML=
-    `<svg viewBox="0 0 ${W} ${Hpx}" style="width:100%;max-width:820px;min-width:560px;display:block;margin:auto" xmlns="http://www.w3.org/2000/svg">${defs}${s}${ar}`+
-    `<text x="${W/2}" y="${Hpx-8}" fill="currentColor" opacity=".55" font-size="12" text-anchor="middle">Mesa ${(X/1000).toLocaleString("pt-BR")} × ${(Y/1000).toLocaleString("pt-BR")} m · pórtico móvel no X · curso Z ${Zc} mm — esquema ilustrativo, sem escala de detalhes</text></svg>`;
+    `<svg class="maquina" viewBox="${n(minX)} ${n(minY)} ${n(w)} ${n(h)}" xmlns="http://www.w3.org/2000/svg">`+
+    `<defs>${mk(CX)}${mk(CY)}${mk(CZ)}</defs>`+
+    `<g class="corpo" stroke-width="1" stroke-linejoin="round">${out.join("")}</g>${ar}`+
+    `<text x="${n(minX+w/2)}" y="${n(minY+h-4)}" fill="currentColor" opacity=".55" font-size="13" text-anchor="middle">Mesa ${fx(X)} × ${fx(Y)} m · pórtico móvel no X · curso Z ${Zc} mm — esquema ilustrativo</text></svg>`;
 }
 
 /* ---------- render ---------- */

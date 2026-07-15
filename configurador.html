@@ -14,7 +14,7 @@
 <!-- impeccable-disable numbered-section-markers -- 1 a 5 são as etapas reais de configuração, em ordem obrigatória -->
 <div class="topbar">
   <a class="back" href="index.html">← início</a>
-  <span style="flex:1"></span>
+  <span class="spacer"></span>
   <button class="tema-btn" id="temaBtn" aria-label="Alternar tema claro e escuro">☾</button>
 </div>
 <h1>Monte a sua CNC Router</h1>
@@ -58,18 +58,18 @@ se montam sozinhos. Use a chave verde para tirar um item do total e clique em pr
   </div>
 </div>
 
-<div class="card" style="margin-bottom:20px">
+<div class="card card-viz">
   <h2>A sua máquina</h2>
-  <div id="viz" style="overflow-x:auto"></div>
+  <div id="viz"></div>
 </div>
 
 <div class="alert" id="alertBox"></div>
 
 <div class="totalbar">
-  <div><div class="big" id="grandTotal">R$ 0,00</div><div class="cfg" id="cfgLabel"></div></div>
-  <button class="send" id="enviaBtn" style="margin-left:auto" title="Envia esta configuração e a planilha por e-mail">Enviar solicitação</button>
-  <button class="reset" id="xlsBtn" style="margin-left:0;background:var(--accent-soft);color:var(--accent);font-weight:600" title="Baixa a planilha com as fórmulas de quantidade × preço, subtotais e total">Exportar Excel</button>
-  <button class="reset" id="resetBtn" style="margin-left:0" title="Descarta preços, quantidades e links editados e reinclui os itens">Restaurar padrão</button>
+  <div class="totalinfo"><div class="big" id="grandTotal">R$ 0,00</div><div class="cfg" id="cfgLabel"></div></div>
+  <button class="send" id="enviaBtn" title="Envia esta configuração e a planilha por e-mail">Enviar solicitação</button>
+  <button class="reset accent" id="xlsBtn" title="Baixa a planilha com as fórmulas de quantidade × preço, subtotais e total">Exportar Excel</button>
+  <button class="reset" id="resetBtn" title="Descarta preços, quantidades e links editados e reinclui os itens">Restaurar padrão</button>
 </div>
 
 <div class="tablewrap">
@@ -84,9 +84,9 @@ se montam sozinhos. Use a chave verde para tirar um item do total e clique em pr
 </table>
 </div>
 
-<div class="card" style="margin-top:20px">
+<div class="card card-dados">
   <h2>Seus dados</h2>
-  <p class="note" style="margin-top:0">Vão junto na planilha e no e-mail, para conseguirmos retornar com o orçamento.
+  <p class="note note-top">Vão junto na planilha e no e-mail, para conseguirmos retornar com o orçamento.
   Ficam salvos só neste navegador.</p>
   <div class="cgrid">
     <label class="cf"><span>Nome</span><input class="rtxt" data-ck="nome" autocomplete="name" placeholder="como podemos te chamar"></label>
@@ -94,7 +94,7 @@ se montam sozinhos. Use a chave verde para tirar um item do total e clique em pr
     <label class="cf"><span>WhatsApp</span><input class="rtxt" type="tel" data-ck="whats" autocomplete="tel" placeholder="(00) 00000-0000"></label>
     <label class="cf"><span>Cidade / UF</span><input class="rtxt" data-ck="cidade" placeholder="para calcular o frete"></label>
   </div>
-  <label class="cf" style="margin-top:12px">
+  <label class="cf cf-wide">
     <span>O que você pretende produzir? (opcional, mas ajuda muito)</span>
     <textarea class="rtxt" rows="2" data-ck="obs" placeholder="ex.: peças de alumínio para protótipos, até 300 × 200 mm"></textarea>
   </label>

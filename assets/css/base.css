@@ -46,6 +46,73 @@
   --steel-1:#1b212b; --steel-2:#141922; --shadow:0 2px 14px rgba(0,0,0,.35);
 }
 
+/* Paleta do desenho da máquina (landing e configurador) — aço em luz de oficina.
+   Claro é o padrão; o escuro entra pela media query (salvo se o usuário fixou o claro) e pelo data-theme. */
+:root{
+  --m1:#d3dae2; --m2:#b6bec9; --m3:#9ba4b1;          /* base */
+  --tp1:#e6ebf0; --tp2:#ccd3db; --tp3:#b3bcc6;        /* tampo */
+  --slot:rgba(30,42,60,.22);                          /* rasgos T */
+  --f1:#d8dee6; --f2:#bcc4ce; --f3:#a3abb7;           /* fuso */
+  --t1:#c2cad4; --t2:#a7b0bc; --t3:#8f99a6;           /* trilhos */
+  --w1:#dbcaa6; --w2:#c0ad86; --w3:#a2906a;           /* peça em usinagem */
+  --cut:#b39d72; --cutline:rgba(48,36,14,.45);        /* bolso fresado */
+  --a1:#aab3c0; --a2:#8e97a5; --a3:#767f8d;           /* pórtico */
+  --z1:#7ba3f0; --z2:#4d7fe0; --z3:#3a63b8;           /* eixo Z (acento) */
+  --s1:#6b7686; --s2:#556070; --s3:#434c59;           /* spindle */
+  --c1:#8e99a8; --c2:#737e8c; --c3:#5c6673;           /* pinça */
+  --tool1:#5d6674; --tool2:#4a525e; --tool3:#3a414b;  /* fresa */
+  --edge:rgba(20,28,44,.26);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --m1:#333c48; --m2:#29313b; --m3:#212830;
+    --tp1:#3d4653; --tp2:#313944; --tp3:#272e38;
+    --slot:rgba(0,0,0,.5);
+    --f1:#49525f; --f2:#3b434e; --f3:#2f3640;
+    --t1:#414a56; --t2:#353d47; --t3:#2b323b;
+    --w1:#6a5f47; --w2:#564d3a; --w3:#433c2e;
+    --cut:#4a4234; --cutline:rgba(0,0,0,.5);
+    --a1:#454e5b; --a2:#38404b; --a3:#2d343d;
+    --z1:#6f9bff; --z2:#4a6fc4; --z3:#35508f;
+    --s1:#545e6c; --s2:#434c58; --s3:#353d47;
+    --c1:#4d5663; --c2:#3f4752; --c3:#333a44;
+    --tool1:#3c434e; --tool2:#313841; --tool3:#272d35;
+    --edge:rgba(0,0,0,.5);
+  }
+}
+:root[data-theme="dark"]{
+  --m1:#333c48; --m2:#29313b; --m3:#212830;
+  --tp1:#3d4653; --tp2:#313944; --tp3:#272e38;
+  --slot:rgba(0,0,0,.5);
+  --f1:#49525f; --f2:#3b434e; --f3:#2f3640;
+  --t1:#414a56; --t2:#353d47; --t3:#2b323b;
+  --w1:#6a5f47; --w2:#564d3a; --w3:#433c2e;
+  --cut:#4a4234; --cutline:rgba(0,0,0,.5);
+  --a1:#454e5b; --a2:#38404b; --a3:#2d343d;
+  --z1:#6f9bff; --z2:#4a6fc4; --z3:#35508f;
+  --s1:#545e6c; --s2:#434c58; --s3:#353d47;
+  --c1:#4d5663; --c2:#3f4752; --c3:#333a44;
+  --tool1:#3c434e; --tool2:#313841; --tool3:#272d35;
+  --edge:rgba(0,0,0,.5);
+}
+
+/* Pinta o desenho por classe, e não por atributo fill="var(--x)": var() em atributo de
+   apresentação tem suporte irregular, e um fallback silencioso pintaria a máquina de preto. */
+.maquina g.corpo{stroke:var(--edge)}
+.maquina .m1{fill:var(--m1)} .maquina .m2{fill:var(--m2)} .maquina .m3{fill:var(--m3)}
+.maquina .tp1{fill:var(--tp1)} .maquina .tp2{fill:var(--tp2)} .maquina .tp3{fill:var(--tp3)}
+.maquina .f1{fill:var(--f1)} .maquina .f2{fill:var(--f2)} .maquina .f3{fill:var(--f3)}
+.maquina .t1{fill:var(--t1)} .maquina .t2{fill:var(--t2)} .maquina .t3{fill:var(--t3)}
+.maquina .w1{fill:var(--w1)} .maquina .w2{fill:var(--w2)} .maquina .w3{fill:var(--w3)}
+.maquina .a1{fill:var(--a1)} .maquina .a2{fill:var(--a2)} .maquina .a3{fill:var(--a3)}
+.maquina .z1{fill:var(--z1)} .maquina .z2{fill:var(--z2)} .maquina .z3{fill:var(--z3)}
+.maquina .s1{fill:var(--s1)} .maquina .s2{fill:var(--s2)} .maquina .s3{fill:var(--s3)}
+.maquina .c1{fill:var(--c1)} .maquina .c2{fill:var(--c2)} .maquina .c3{fill:var(--c3)}
+.maquina .tool1{fill:var(--tool1)} .maquina .tool2{fill:var(--tool2)} .maquina .tool3{fill:var(--tool3)}
+.maquina .slot{stroke:var(--slot)}
+.maquina .cut{fill:var(--cut);stroke:var(--cutline)}
+.maquina .cota{font-family:var(--font-mono)}
+
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{font-family:var(--font-body);font-size:var(--fs-body);line-height:1.55;background:var(--bg);color:var(--ink);

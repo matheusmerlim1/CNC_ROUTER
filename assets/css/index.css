@@ -3,55 +3,7 @@
 /* escala do registro brand: degraus largos (≥1.25), não o platô de 1.1 */
 :root{ --i-label:.75rem; --i-body:1rem; --i-lead:1.25rem; --i-h2:1.75rem; }
 
-/* Paleta do desenho da máquina — aço em luz de oficina.
-   Padrão claro; o escuro entra pela media query (salvo se o usuário fixou o claro) e pelo data-theme. */
-:root{
-  --m1:#d3dae2; --m2:#b6bec9; --m3:#9ba4b1;          /* base */
-  --tp1:#e6ebf0; --tp2:#ccd3db; --tp3:#b3bcc6;        /* tampo */
-  --slot:rgba(30,42,60,.22);                          /* rasgos T */
-  --f1:#d8dee6; --f2:#bcc4ce; --f3:#a3abb7;           /* fuso */
-  --t1:#c2cad4; --t2:#a7b0bc; --t3:#8f99a6;           /* trilhos */
-  --w1:#dbcaa6; --w2:#c0ad86; --w3:#a2906a;           /* peça em usinagem */
-  --cut:#b39d72; --cutline:rgba(48,36,14,.45);        /* bolso fresado */
-  --a1:#aab3c0; --a2:#8e97a5; --a3:#767f8d;           /* pórtico */
-  --z1:#7ba3f0; --z2:#4d7fe0; --z3:#3a63b8;           /* eixo Z (acento) */
-  --s1:#6b7686; --s2:#556070; --s3:#434c59;           /* spindle */
-  --c1:#8e99a8; --c2:#737e8c; --c3:#5c6673;           /* pinça */
-  --tool1:#5d6674; --tool2:#4a525e; --tool3:#3a414b;  /* fresa */
-  --edge:rgba(20,28,44,.26);
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --m1:#333c48; --m2:#29313b; --m3:#212830;
-    --tp1:#3d4653; --tp2:#313944; --tp3:#272e38;
-    --slot:rgba(0,0,0,.5);
-    --f1:#49525f; --f2:#3b434e; --f3:#2f3640;
-    --t1:#414a56; --t2:#353d47; --t3:#2b323b;
-    --w1:#6a5f47; --w2:#564d3a; --w3:#433c2e;
-    --cut:#4a4234; --cutline:rgba(0,0,0,.5);
-    --a1:#454e5b; --a2:#38404b; --a3:#2d343d;
-    --z1:#6f9bff; --z2:#4a6fc4; --z3:#35508f;
-    --s1:#545e6c; --s2:#434c58; --s3:#353d47;
-    --c1:#4d5663; --c2:#3f4752; --c3:#333a44;
-    --tool1:#3c434e; --tool2:#313841; --tool3:#272d35;
-    --edge:rgba(0,0,0,.5);
-  }
-}
-:root[data-theme="dark"]{
-  --m1:#333c48; --m2:#29313b; --m3:#212830;
-  --tp1:#3d4653; --tp2:#313944; --tp3:#272e38;
-  --slot:rgba(0,0,0,.5);
-  --f1:#49525f; --f2:#3b434e; --f3:#2f3640;
-  --t1:#414a56; --t2:#353d47; --t3:#2b323b;
-  --w1:#6a5f47; --w2:#564d3a; --w3:#433c2e;
-  --cut:#4a4234; --cutline:rgba(0,0,0,.5);
-  --a1:#454e5b; --a2:#38404b; --a3:#2d343d;
-  --z1:#6f9bff; --z2:#4a6fc4; --z3:#35508f;
-  --s1:#545e6c; --s2:#434c58; --s3:#353d47;
-  --c1:#4d5663; --c2:#3f4752; --c3:#333a44;
-  --tool1:#3c434e; --tool2:#313841; --tool3:#272d35;
-  --edge:rgba(0,0,0,.5);
-}
+/* A paleta do desenho da máquina vive em base.css — a landing e o configurador desenham a mesma máquina. */
 
 body{margin:0;min-height:100vh}
 .wrap{max-width:1140px;margin:0 auto;padding:0 24px}
