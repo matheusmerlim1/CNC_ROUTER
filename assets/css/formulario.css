@@ -1,0 +1,36 @@
+/* formulario.css — formulário do cliente (identidade compartilhada, foco em leitura de formulário) */
+body{margin:0;max-width:900px;margin-left:auto;margin-right:auto;padding:24px}
+.topbar{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.topbar a.back{font-size:.75rem;color:var(--muted)}
+.docid{font-family:var(--font-mono);font-size:.75rem;letter-spacing:.02em;color:var(--accent)}
+h1{font-size:1.6rem;margin:2px 0 2px;font-weight:700}
+.lead{color:var(--muted);margin:8px 0 18px;font-size:1rem}
+.sec{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:14px;break-inside:avoid;box-shadow:var(--shadow)}
+.sec h2{font-size:1.25rem;margin:0 0 4px;font-weight:600}
+.sec .hint{font-size:1rem;color:var(--muted);margin:0 0 10px}
+.sec.seg{border-color:var(--warn)}
+label.chk{display:flex;align-items:flex-start;gap:8px;font-size:1rem;margin:7px 0;cursor:pointer}
+label.chk input{margin-top:4px;accent-color:var(--accent)}
+.rlabel{font-size:.75rem;color:var(--muted);margin-top:10px;display:block}
+.rtxt{width:100%;border:1px dashed var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:7px 9px;font-family:inherit;font-size:1rem;margin:4px 0}
+.rtxt:focus{border-color:var(--accent);outline:none}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+@media(max-width:600px){.duo{grid-template-columns:1fr}}
+.toolbar{position:sticky;top:8px;z-index:5;display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:var(--card);
+  border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:16px;box-shadow:var(--shadow)}
+.toolbar button{border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:600;border-radius:8px;
+  padding:8px 14px;cursor:pointer;font-size:1rem;font-family:var(--font-head)}
+.toolbar button.primary{background:#0f7a3d;color:#fff;border-color:#0f7a3d}
+.toolbar button.accent{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-soft)}
+.toolbar button:disabled{opacity:.6;cursor:default}
+.toolbar .saved{margin-left:auto;color:var(--ok);font-size:.75rem}
+.sign{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-top:24px}
+.sign div{border-top:1px solid var(--ink);padding-top:6px;font-size:.75rem;color:var(--muted);text-align:center}
+/* impressão: força tokens claros de alto contraste (evita texto escuro sobre card escuro ao imprimir no tema dark) */
+@media print{
+  :root{--bg:#fff;--card:#fff;--panel:#fff;--ink:#000;--muted:#333;--line:#bbb}
+  body{padding:0;max-width:none}
+  .toolbar,.topbar{display:none}
+  .sec{box-shadow:none;page-break-inside:avoid}
+  .rtxt{border-bottom:1px solid #999;border-radius:0}
+}

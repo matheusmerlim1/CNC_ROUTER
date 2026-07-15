@@ -1,0 +1,62 @@
+/* index.css — landing de solicitação (identidade nameplate industrial) */
+body{margin:0;min-height:100vh}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+/* topo */
+.masthead{display:flex;align-items:center;gap:14px;padding:20px 0 8px}
+.logo{font-family:var(--font-head);font-weight:700;font-size:var(--fs-lead);letter-spacing:.02em;display:flex;align-items:center;gap:9px}
+.logo .tag{font-family:var(--font-mono);font-size:.66rem;font-weight:500;letter-spacing:.08em;color:var(--accent);
+  border:1px solid var(--accent);border-radius:5px;padding:2px 6px;text-transform:uppercase}
+.masthead .spacer{flex:1}
+
+/* hero — nameplate à esquerda sobre grade de blueprint */
+.hero{position:relative;padding:40px 0 34px;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.55;
+  background-image:radial-gradient(var(--line) 1px,transparent 1px);background-size:22px 22px;
+  -webkit-mask-image:linear-gradient(90deg,#000 0 46%,transparent 78%);
+  mask-image:linear-gradient(90deg,#000 0 46%,transparent 78%)}
+.hero>*{position:relative;z-index:1}
+.hero h1{font-size:clamp(2.2rem,5vw,3.5rem);line-height:1.03;font-weight:700;margin:0 0 8px;max-width:18ch}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero .hazard{width:120px;margin:18px 0 20px}
+.hero .lead{color:var(--muted);font-size:var(--fs-lead);max-width:56ch;margin:0}
+
+/* painéis de caminho — cartões "usinados" */
+.paths{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:8px 0 34px}
+@media(max-width:720px){.paths{grid-template-columns:1fr}}
+.panel{position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px;
+  display:flex;flex-direction:column;color:var(--ink);text-decoration:none;box-shadow:var(--shadow);
+  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+.panel:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 12px 30px rgba(20,30,50,.14);text-decoration:none}
+.panel:active{transform:translateY(-1px)}
+.panel .idx{font-family:var(--font-mono);font-size:var(--fs-label);letter-spacing:.03em;color:var(--muted);margin-bottom:14px}
+.panel h2{font-size:var(--fs-sub);margin:0 0 8px;font-weight:600}
+.panel p{color:var(--muted);font-size:var(--fs-body);margin:0 0 18px;flex:1}
+.panel .go{color:var(--accent);font-weight:600;font-size:var(--fs-small);font-family:var(--font-head)}
+.panel .go::after{content:" →";font-family:var(--font-mono);display:inline-block;transition:transform .16s ease}
+.panel:hover .go::after{transform:translateX(4px)}
+
+/* faixa de processo — sequência real de etapas */
+.section-label{font-family:var(--font-head);font-size:var(--fs-sub);font-weight:600;margin:0 0 4px}
+.process{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 26px;margin-bottom:20px}
+.process ol{list-style:none;margin:14px 0 0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:720px){.process ol{grid-template-columns:1fr}}
+.process li{display:flex;gap:12px;align-items:flex-start;font-size:var(--fs-body)}
+.process .n{flex:none;width:30px;height:30px;border-radius:8px;background:var(--accent);color:var(--accent-ink);
+  font-family:var(--font-mono);font-weight:600;display:flex;align-items:center;justify-content:center;font-size:var(--fs-small)}
+
+/* barra de contato */
+.contact{display:flex;flex-wrap:wrap;align-items:center;gap:18px;background:var(--card);border:1px solid var(--line);
+  border-radius:14px;padding:22px 26px;box-shadow:var(--shadow)}
+.contact .txt{flex:1;min-width:220px}
+.contact h3{margin:0 0 4px;font-size:var(--fs-sub);font-weight:600}
+.contact p{margin:0;color:var(--muted);font-size:var(--fs-body)}
+.contact .btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:10px;padding:11px 18px;font-weight:600;font-size:var(--fs-body);
+  font-family:var(--font-head);text-decoration:none;border:1px solid var(--line);cursor:pointer;color:var(--ink);background:var(--card)}
+.btn:hover{text-decoration:none;filter:brightness(1.03)}
+.btn:active{transform:translateY(1px)}
+/* verde vivo com texto escuro — contraste AA (o texto branco sobre verde reprovava) */
+.btn.wa{background:#25d366;color:#0a2e19;border-color:#25d366}
+.btn.mail{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.foot{color:var(--muted);font-size:var(--fs-small);margin:22px 0 40px}

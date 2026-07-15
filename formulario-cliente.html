@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formulário do Cliente — Requisitos do Produto (01-FORM-001)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/formulario.css">
+</head>
+<body>
+<!-- impeccable-disable numbered-section-markers -- seções numeradas conforme o formulário oficial 01-FORM-001 -->
+<div class="topbar">
+  <a class="back" href="index.html">← início</a>
+  <span class="docid">01-FORM-001 · Requisitos do Produto</span>
+  <span style="flex:1"></span>
+  <button class="tema-btn" id="temaBtn" aria-label="Alternar tema claro e escuro">☾</button>
+</div>
+<h1>Que produto você deseja fazer?</h1>
+<p class="lead">Preencha com o máximo de detalhes que puder, com suas palavras. É com este documento que definimos
+o projeto: tudo que for construído vai seguir o que estiver escrito aqui. As respostas ficam salvas neste navegador.</p>
+
+<div class="toolbar">
+  <button class="primary" id="enviarBtn">Enviar solicitação</button>
+  <button id="pdfBtn">Imprimir / salvar PDF</button>
+  <button class="accent" id="txtBtn">Exportar respostas (.txt)</button>
+  <button id="limparBtn">Limpar</button>
+  <span class="saved" id="savedMsg"></span>
+</div>
+
+<div class="sec">
+  <h2>1 · Seus dados</h2>
+  <div class="duo">
+    <div><span class="rlabel">Nome completo</span><input class="rtxt" data-rk="cli_nome" data-l="Nome"></div>
+    <div><span class="rlabel">Empresa (se houver)</span><input class="rtxt" data-rk="cli_empresa" data-l="Empresa"></div>
+    <div><span class="rlabel">Telefone / WhatsApp</span><input class="rtxt" data-rk="cli_tel" data-l="Telefone"></div>
+    <div><span class="rlabel">E-mail</span><input class="rtxt" data-rk="cli_email" data-l="E-mail"></div>
+    <div><span class="rlabel">Cidade / UF</span><input class="rtxt" data-rk="cli_cidade" data-l="Cidade"></div>
+    <div><span class="rlabel">Data do pedido</span><input class="rtxt" data-rk="cli_data" data-l="Data" placeholder="__/__/____"></div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2>2 · O produto que você deseja</h2>
+  <p class="hint">Descreva o que você quer que seja construído e para que ele vai servir.</p>
+  <span class="rlabel">Nome / descrição resumida do produto</span>
+  <input class="rtxt" data-rk="prod_nome" data-l="Produto" placeholder="ex.: CNC router para usinar peças de alumínio 700×500 mm">
+  <span class="rlabel">O que ele precisa fazer? (objetivo principal)</span>
+  <textarea class="rtxt" rows="3" data-rk="prod_obj" data-l="Objetivo"></textarea>
+</div>
+
+<div class="sec">
+  <h2>3 · Que problema ele resolve para você?</h2>
+  <p class="hint">Essa é a pergunta mais importante: no final, o produto será avaliado por resolver (ou não) isso aqui.</p>
+  <textarea class="rtxt" rows="3" data-rk="dor_desc" data-l="Problema que resolve" placeholder="ex.: hoje mando usinar fora e demora 3 semanas; quero produzir minhas próprias peças com qualidade"></textarea>
+  <span class="rlabel">Como você resolve isso hoje?</span>
+  <textarea class="rtxt" rows="2" data-rk="dor_hoje" data-l="Solução atual"></textarea>
+</div>
+
+<div class="sec">
+  <h2>4 · Uso e aplicação</h2>
+  <div class="duo"><div>
+  <span class="rlabel">Tipo de uso</span>
+  <label class="chk"><input type="checkbox" data-rk="uso_prof" data-l="Uso profissional">Profissional (dia a dia)</label>
+  <label class="chk"><input type="checkbox" data-rk="uso_prod" data-l="Produção leve">Produção leve / sob demanda</label>
+  <label class="chk"><input type="checkbox" data-rk="uso_hobby" data-l="Hobby">Hobby / uso pessoal</label>
+  </div><div>
+  <span class="rlabel">Materiais que pretende trabalhar</span>
+  <label class="chk"><input type="checkbox" data-rk="mat_alu" data-l="Material: alumínio">Alumínio</label>
+  <label class="chk"><input type="checkbox" data-rk="mat_mad" data-l="Material: madeira/MDF">Madeira / MDF</label>
+  <label class="chk"><input type="checkbox" data-rk="mat_pla" data-l="Material: plásticos">Plásticos / acrílico</label>
+  <label class="chk"><input type="checkbox" data-rk="mat_outro" data-l="Material: outro">Outro:</label>
+  <input class="rtxt" data-rk="mat_outro_desc" data-l="Outro material"></div></div>
+  <span class="rlabel">Quem vai operar? Já tem experiência com CNC?</span>
+  <input class="rtxt" data-rk="uso_operador" data-l="Operador">
+</div>
+
+<div class="sec">
+  <h2>5 · Tamanhos, quantidades e desempenho</h2>
+  <div class="duo">
+    <div><span class="rlabel">Maior peça que precisa produzir (C × L × A)</span>
+    <input class="rtxt" data-rk="dim_peca" data-l="Maior peça" placeholder="ex.: 600 × 400 × 40 mm"></div>
+    <div><span class="rlabel">Espaço disponível para a máquina (área e pé-direito)</span>
+    <input class="rtxt" data-rk="dim_espaco" data-l="Espaço disponível" placeholder="ex.: 2 × 1,5 m em garagem coberta"></div>
+    <div><span class="rlabel">Quantas peças por mês (aproximado)?</span>
+    <input class="rtxt" data-rk="dim_qtd" data-l="Peças/mês"></div>
+    <div><span class="rlabel">Precisão que o seu produto exige</span>
+    <input class="rtxt" data-rk="dim_precisao" data-l="Precisão exigida" placeholder="ex.: encaixes justos, ±0,05 mm / não sei, quero orientação"></div>
+  </div>
+  <span class="rlabel">O que NÃO pode faltar de jeito nenhum? (requisitos obrigatórios)</span>
+  <textarea class="rtxt" rows="2" data-rk="dim_obrigatorio" data-l="Requisitos obrigatórios"></textarea>
+</div>
+
+<div class="sec">
+  <h2>6 · Instalação elétrica do local</h2>
+  <label class="chk"><input type="checkbox" data-rk="ele_110" data-l="Rede 110V">Tenho rede 110 V</label>
+  <label class="chk"><input type="checkbox" data-rk="ele_220" data-l="Rede 220V">Tenho rede 220 V</label>
+  <label class="chk"><input type="checkbox" data-rk="ele_naosei" data-l="Não sei a rede">Não sei, precisa verificar</label>
+  <span class="rlabel">Observações sobre o local (disjuntores, aterramento, tomadas)</span>
+  <input class="rtxt" data-rk="ele_obs" data-l="Observações elétricas">
+</div>
+
+<div class="sec seg">
+  <h2>7 · Segurança (importante)</h2>
+  <p class="hint">Requisitos de segurança do projeto. Em ambiente profissional / empresa, a NR-12 é obrigatória.</p>
+  <label class="chk"><input type="checkbox" data-rk="seg_estop" data-l="Botão de emergência">Botão de emergência</label>
+  <label class="chk"><input type="checkbox" data-rk="seg_rele" data-l="Relé de segurança">Relé de segurança</label>
+  <label class="chk"><input type="checkbox" data-rk="seg_terra" data-l="Aterramento">Aterramento funcional e de proteção</label>
+  <label class="chk"><input type="checkbox" data-rk="seg_enclau" data-l="Enclausuramento">Enclausuramento completo (proteção contra cavacos e acesso)</label>
+  <label class="chk"><input type="checkbox" data-rk="seg_porta" data-l="Intertravamento">Intertravamento de portas (máquina para ao abrir)</label>
+  <label class="chk"><input type="checkbox" data-rk="seg_nr" data-l="Exige NR-10/NR-12">O local exige conformidade com NR-10 / NR-12 (empresa)</label>
+</div>
+
+<div class="sec">
+  <h2>8 · Prazo e orçamento</h2>
+  <div class="duo">
+    <div><span class="rlabel">Para quando você precisa?</span>
+    <input class="rtxt" data-rk="orc_prazo" data-l="Prazo"></div>
+    <div><span class="rlabel">Faixa de orçamento disponível</span>
+    <input class="rtxt" data-rk="orc_valor" data-l="Orçamento" placeholder="ex.: R$ 20.000 a 30.000"></div>
+  </div>
+</div>
+
+<div class="sec">
+  <h2>9 · Restrições e referências</h2>
+  <span class="rlabel">Restrições conhecidas (peso máximo, portas/escadas para transporte, ruído, horário de obra)</span>
+  <textarea class="rtxt" rows="2" data-rk="res_restr" data-l="Restrições"></textarea>
+  <span class="rlabel">Referências: links, fotos ou vídeos de algo parecido com o que você quer</span>
+  <textarea class="rtxt" rows="2" data-rk="res_refs" data-l="Referências"></textarea>
+  <span class="rlabel">Alguma coisa que ainda não perguntamos e você acha importante?</span>
+  <textarea class="rtxt" rows="2" data-rk="res_extra" data-l="Observações extras"></textarea>
+</div>
+
+<div class="sec">
+  <h2>10 · Confirmação</h2>
+  <label class="chk"><input type="checkbox" data-rk="apr_confirmo" data-l="Confirmação do cliente">Confirmo que as informações acima descrevem o produto que eu desejo. Entendo que o projeto será desenvolvido com base neste documento e que mudanças depois de aprovado podem alterar prazo e custo.</label>
+  <div class="sign">
+    <div>Assinatura do cliente</div>
+    <div>Data</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="assets/js/contato.js"></script>
+<script src="assets/js/formulario.js"></script>
+</body>
+</html>

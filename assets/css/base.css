@@ -1,0 +1,71 @@
+/* base.css — sistema de design compartilhado (identidade "usinagem / alumínio anodizado")
+   Tokens + tipografia IBM Plex + primitivas. Fontes vêm por <link> no <head> de cada página. */
+
+:root{
+  /* neutros grafite com viés azul-frio (escolhidos, não cinza puro) */
+  --bg:#eceff3; --panel:#f6f8fb; --card:#ffffff;
+  --ink:#161c26; --muted:#5a6573; --line:#d6dce3; --cat:#e7ebf1;
+  /* acento blueprint blue — usado com parcimônia */
+  --accent:#1f4fd8; --accent-ink:#ffffff; --accent-soft:#e6ecfb;
+  /* cor de estado (separada do acento) */
+  --ok:#0f7a3d; --warn:#b45309; --warn-soft:#fbeccd; --danger:#c0392b;
+  /* aço para o hero */
+  --steel-1:#e2e7ed; --steel-2:#ccd3dc;
+  --shadow:0 2px 10px rgba(20,30,50,.08);
+  --font-head:"IBM Plex Sans Condensed","Segoe UI Semibold",system-ui,sans-serif;
+  --font-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,"Cascadia Code",Consolas,monospace;
+  /* escala tipográfica — poucos degraus, bem separados */
+  --fs-label:.72rem; --fs-small:.82rem; --fs-body:1rem; --fs-lead:1.18rem; --fs-sub:1.4rem;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0f1218; --panel:#161b23; --card:#181d26;
+    --ink:#e7ebf1; --muted:#97a2b1; --line:#2a3140; --cat:#1e2530;
+    --accent:#6f9bff; --accent-ink:#0b1220; --accent-soft:#1a2740;
+    --ok:#45c46f; --warn:#eab35a; --warn-soft:#35301c; --danger:#e5675a;
+    --steel-1:#1b212b; --steel-2:#141922;
+    --shadow:0 2px 14px rgba(0,0,0,.35);
+  }
+}
+/* o toggle do usuário estampa data-theme na raiz e precisa vencer a media query nos dois sentidos */
+:root[data-theme="light"]{
+  --bg:#eceff3; --panel:#f6f8fb; --card:#ffffff;
+  --ink:#161c26; --muted:#5a6573; --line:#d6dce3; --cat:#e7ebf1;
+  --accent:#1f4fd8; --accent-ink:#ffffff; --accent-soft:#e6ecfb;
+  --ok:#0f7a3d; --warn:#b45309; --warn-soft:#fbeccd; --danger:#c0392b;
+  --steel-1:#e2e7ed; --steel-2:#ccd3dc; --shadow:0 2px 10px rgba(20,30,50,.08);
+}
+:root[data-theme="dark"]{
+  --bg:#0f1218; --panel:#161b23; --card:#181d26;
+  --ink:#e7ebf1; --muted:#97a2b1; --line:#2a3140; --cat:#1e2530;
+  --accent:#6f9bff; --accent-ink:#0b1220; --accent-soft:#1a2740;
+  --ok:#45c46f; --warn:#eab35a; --warn-soft:#35301c; --danger:#e5675a;
+  --steel-1:#1b212b; --steel-2:#141922; --shadow:0 2px 14px rgba(0,0,0,.35);
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--font-body);font-size:var(--fs-body);line-height:1.55;background:var(--bg);color:var(--ink);
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* tipografia: títulos condensados, corpo humanista, dados monoespaçados */
+h1,h2,h3{font-family:var(--font-head);text-wrap:balance;letter-spacing:-.01em}
+.eyebrow{font-family:var(--font-mono);font-size:.72rem;font-weight:500;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--muted)}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+
+/* filete industrial: marcador estrutural simples, sem textura decorativa */
+.hazard{height:4px;border-radius:2px;background:var(--accent);opacity:.85}
+
+/* controle de tema (botão no cabeçalho) */
+.tema-btn{border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:8px;
+  width:40px;height:40px;cursor:pointer;font-size:1.05rem;line-height:1;display:inline-flex;
+  align-items:center;justify-content:center;transition:color .15s ease,border-color .15s ease}
+.tema-btn:hover{color:var(--ink);border-color:var(--accent)}
+.tema-btn:active{transform:translateY(1px)}
+
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}

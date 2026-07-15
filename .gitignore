@@ -1,0 +1,15 @@
+*.pdf
+*.exe
+*.zip
+*.xlsx
+githubguia.md
+githubGuia.md
+node_modules/
+Thumbs.db
+.DS_Store
+text.txt
+
+# Config de ferramentas/harness (caminhos locais da máquina)
+.claude/
+.codex/
+.agents/
