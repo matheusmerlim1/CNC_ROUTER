@@ -2,6 +2,17 @@
 body{margin:0;padding:24px}
 h1{font-size:var(--fs-sub);margin:0 0 4px;font-weight:700}
 .sub{color:var(--muted);margin:0 0 20px;font-size:var(--fs-small)}
+/* barra de modo: define se a mão de obra é editável */
+.modebar{display:flex;align-items:center;flex-wrap:wrap;gap:10px 14px;background:var(--panel);border:1px solid var(--line);
+  border-radius:12px;padding:12px 16px;margin-bottom:16px}
+.modebar .modelbl{font-weight:600;font-size:.92rem}
+.modebar .note{margin-top:0;flex:1;min-width:240px}
+/* item fixo do orçamento (mão de obra no modo cliente) */
+.fixo{display:inline-block;width:38px;text-align:center;color:var(--muted);font-size:1.1rem;line-height:26px}
+/* dados do solicitante */
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px 16px}
+.cf{display:flex;flex-direction:column;gap:3px}
+.cf>span{font-size:.78rem;color:var(--muted)}
 .steps{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:20px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;flex:1;min-width:230px}
 .card h2{margin:0 0 10px;font-size:var(--fs-label);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
@@ -58,20 +69,8 @@ button.send{border:1px solid #0f7a3d;background:#0f7a3d;color:#fff;font-weight:6
 button.send:hover{filter:brightness(1.08)}
 button.send:active{transform:translateY(1px)}
 button.send:disabled{opacity:.6;cursor:default;transform:none}
-/* formulário de requisitos */
-.reqgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:12px;margin-top:12px}
-details.req{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
-details.req summary{cursor:pointer;font-weight:600;font-size:.9rem;display:flex;justify-content:space-between;gap:8px}
-details.req summary .done{color:var(--ok);font-size:.78rem;font-weight:700}
-details.req.seg{border-color:var(--warn)}
-label.chk{display:flex;align-items:flex-start;gap:8px;font-size:.85rem;margin:7px 0;cursor:pointer}
-label.chk input{margin-top:2px;accent-color:var(--accent)}
-.rtxt{width:100%;border:1px dashed var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:5px 8px;font:inherit;font-size:.85rem;margin:4px 0}
-.rtxt:focus{border-color:var(--accent);outline:none}
-.rlabel{font-size:.78rem;color:var(--muted);margin-top:8px;display:block}
-.progwrap{height:10px;background:var(--line);border-radius:6px;overflow:hidden;margin:8px 0}
-/* anima transform (não width) para evitar layout thrash */
-.progbar{height:100%;background:var(--accent);width:100%;transform-origin:left;transform:scaleX(0);transition:transform .3s ease}
-.chip{display:inline-block;border-radius:14px;padding:3px 12px;font-size:.78rem;font-weight:700;margin-right:8px}
-.chip.ok{background:var(--accent-soft);color:var(--ok)}
-.chip.bad{background:var(--warn-soft);color:var(--warn)}
+/* campos de texto (dados do solicitante) */
+.rtxt{width:100%;border:1px dashed var(--line);background:transparent;color:var(--ink);border-radius:6px;
+  padding:7px 9px;font-family:inherit;font-size:.95rem;transition:border-color .15s ease}
+.rtxt:hover{border-color:var(--muted)}
+.rtxt:focus{border-color:var(--accent);border-style:solid;outline:none}

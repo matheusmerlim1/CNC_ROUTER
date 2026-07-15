@@ -47,8 +47,12 @@ function configuradorContext(){
     FileReader:function(){}, console, confirm:()=>false, prompt:()=>"", alert(){},
     setTimeout, clearTimeout, matchMedia:window.matchMedia
   });
+  // a página carrega contato.js antes do configurador.js; o teste faz o mesmo
+  vm.runInContext(read("assets/js/contato.js"), context, {filename:"assets/js/contato.js"});
   let source = read("assets/js/configurador.js");
-  source = source.replace("\nrender();\n\n/* ---------- formulário", "\n/* render desativado pelo teste */\n\n/* ---------- formulário");
+  const antes = source;
+  source = source.replace("\nrender();\n", "\n/* render desativado pelo teste */\n");
+  assert.notEqual(source, antes, "âncora do render() mudou — ajuste o teste");
   vm.runInContext(source, context, {filename:"assets/js/configurador.js"});
   return context;
 }
@@ -126,20 +130,32 @@ async function testConfigurador(){
       if(svg.includes("NaN")||!svg.includes("<polygon")) throw new Error("SVG inválido");
       desenhos++;
     }
-    Object.assign(state,{mat:"aluminio",trans:"fuso",motor:"closed34",perfil:"p4040r",x:700,y:500,z:400});
+    Object.assign(state,{mat:"aluminio",trans:"fuso",motor:"closed34",perfil:"p4040r",x:700,y:500,z:400,modo:"montador"});
     const base=buildBOM().find(r=>r.id==="maoobra");
+    const montadorLock=!!base.lock;
+    Object.assign(state,{modo:"cliente"});
+    const clienteLock=!!buildBOM().find(r=>r.id==="maoobra").lock;
     Object.assign(state,{x:1500,y:1000});
     const grande=buildBOM().find(r=>r.id==="maoobra");
-    document.getElementById("cfgLabel").textContent="Teste 1500 × 1000";
+    Object.assign(state,{x:700,y:500});
+    document.getElementById("cfgLabel").textContent="Teste 700 × 500";
+    contato.nome="Fulano"; contato.email="fulano@exemplo.com"; contato.whats="(22) 90000-0000";
     const excel=buildExcelXml();
     return {combinacoes,desenhos,menor,maior,baseHoras:base.qty,baseValor:base.qty*base.price,
-      grandeHoras:grande.qty,xml:excel.xml,nome:excel.nome};
+      grandeHoras:grande.qty,montadorLock,clienteLock,xml:excel.xml,nome:excel.nome};
   })()`,context);
   assert.equal(stats.combinacoes,5400);
   assert.equal(stats.desenhos,75);
   assert.equal(stats.baseHoras,60);
   assert.equal(stats.baseValor,4200);
   assert.equal(stats.grandeHoras,125);
+  // modos: só o montador edita a mão de obra
+  assert.equal(stats.montadorLock,false,"no modo montador a mão de obra deve ser editável");
+  assert.equal(stats.clienteLock,true,"no modo cliente a mão de obra não pode ser editável");
+  // a planilha precisa levar quem pediu e para onde responder
+  assert(stats.xml.includes("DADOS DO SOLICITANTE"),"Excel sem o bloco do solicitante");
+  assert(stats.xml.includes("Fulano")&&stats.xml.includes("fulano@exemplo.com"),"Excel sem os dados de contato preenchidos");
+  assert(stats.xml.includes("ENVIAR PARA")&&stats.xml.includes("matheusmerlim@gmail.com"),"Excel sem o destino do envio");
   assert(stats.xml.includes("TOTAL GERAL"));
   assert.equal((stats.xml.match(/<Worksheet\b/g)||[]).length,2);
   assert.equal((stats.xml.match(/<Row\b/g)||[]).length,(stats.xml.match(/<\/Row>/g)||[]).length);

@@ -11,17 +11,22 @@
 <link rel="stylesheet" href="assets/css/configurador.css">
 </head>
 <body>
-<!-- impeccable-disable numbered-section-markers -- 1–5 são as etapas reais do configurador; a numeração 2,4,7,8… vem do formulário oficial 01-FORM-001 -->
-<!-- impeccable-disable em-dash-overuse -- copy técnico de especificação; travessões usados em notação -->
+<!-- impeccable-disable numbered-section-markers -- 1 a 5 são as etapas reais de configuração, em ordem obrigatória -->
 <div class="topbar">
   <a class="back" href="index.html">← início</a>
   <span style="flex:1"></span>
   <button class="tema-btn" id="temaBtn" aria-label="Alternar tema claro e escuro">☾</button>
 </div>
-<h1>Configurador CNC Router</h1>
-<p class="sub">Escolha o material de corte, o comprimento dos eixos, a transmissão e a motorização — a lista de componentes e o custo total são montados automaticamente.
-Use a chave verde para <b>incluir/excluir</b> um item do total. Clique em preço/quantidade para editar.
-<span class="chk">✔ VERIFICADO</span> = preço confirmado no site em 14/07/2026 · <span class="est">EST</span> = estimativa a confirmar.</p>
+<h1>Monte a sua CNC Router</h1>
+<p class="sub">Escolha o material, o tamanho dos eixos, a transmissão e a motorização. A lista de peças e o custo
+se montam sozinhos. Use a chave verde para tirar um item do total e clique em preço ou quantidade para editar.
+<span class="chk">✔ VERIFICADO</span> = preço confirmado na loja em 14/07/2026 · <span class="est">EST</span> = estimativa a confirmar.</p>
+
+<div class="modebar">
+  <span class="modelbl">Quem vai montar a máquina?</span>
+  <div class="opts" id="modoOpts"></div>
+  <span class="note" id="modoNote"></span>
+</div>
 
 <div class="steps">
   <div class="card">
@@ -54,7 +59,7 @@ Use a chave verde para <b>incluir/excluir</b> um item do total. Clique em preço
 </div>
 
 <div class="card" style="margin-bottom:20px">
-  <h2>Visualização 3D (esquema — ajusta aos comprimentos selecionados)</h2>
+  <h2>A sua máquina</h2>
   <div id="viz" style="overflow-x:auto"></div>
 </div>
 
@@ -62,9 +67,9 @@ Use a chave verde para <b>incluir/excluir</b> um item do total. Clique em preço
 
 <div class="totalbar">
   <div><div class="big" id="grandTotal">R$ 0,00</div><div class="cfg" id="cfgLabel"></div></div>
-  <button class="send" id="enviaBtn" style="margin-left:auto" title="Envia esta configuração e a planilha Excel para o Matheus (matheusmerlim@gmail.com)">📤 Enviar solicitação</button>
-  <button class="reset" id="xlsBtn" style="margin-left:0;background:var(--accent-soft);color:var(--accent);font-weight:600" title="Gera planilha Excel organizada, com fórmulas de quantidade × preço, subtotais e total — dá para ajustar direto no Excel">⬇ Exportar Excel</button>
-  <button class="reset" id="resetBtn" style="margin-left:0" title="Descarta preços/quantidades/links editados e itens excluídos">↺ Restaurar padrão</button>
+  <button class="send" id="enviaBtn" style="margin-left:auto" title="Envia esta configuração e a planilha por e-mail">Enviar solicitação</button>
+  <button class="reset" id="xlsBtn" style="margin-left:0;background:var(--accent-soft);color:var(--accent);font-weight:600" title="Baixa a planilha com as fórmulas de quantidade × preço, subtotais e total">Exportar Excel</button>
+  <button class="reset" id="resetBtn" style="margin-left:0" title="Descarta preços, quantidades e links editados e reinclui os itens">Restaurar padrão</button>
 </div>
 
 <div class="tablewrap">
@@ -80,113 +85,25 @@ Use a chave verde para <b>incluir/excluir</b> um item do total. Clique em preço
 </div>
 
 <div class="card" style="margin-top:20px">
-  <h2>Formulário de definição de requisitos técnicos — 01-FORM-001 (Parte 3 da série)</h2>
-  <p class="note" style="margin-top:0">O documento mais importante do projeto: tudo que for feito precisa estar em harmonia com ele.
-  Preencha para saber como está o projeto — tudo é salvo automaticamente neste navegador. Fonte: <b>01-form-001-rt.docx</b> (nesta pasta).</p>
-  <div id="reqStatus"></div>
-  <div class="progwrap"><div class="progbar" id="reqProg"></div></div>
-
-  <div class="reqgrid">
-    <details class="req" open><summary>Identificação e objetivo <span class="done" data-sec="idt"></span></summary>
-      <span class="rlabel">Projeto</span><input class="rtxt" data-rk="idt_projeto" placeholder="ex.: CNC Router Alumínio 700x500">
-      <span class="rlabel">Responsável</span><input class="rtxt" data-rk="idt_resp" placeholder="nome">
-      <span class="rlabel">Data / Versão</span><input class="rtxt" data-rk="idt_data" placeholder="ex.: 15/07/2026 — v1">
-      <span class="rlabel">Objetivo do produto</span>
-      <textarea class="rtxt" rows="3" data-rk="idt_obj" placeholder="CNC de alta rigidez e precisão, projetada para usinagem de alumínio, com foco em repetibilidade e estabilidade dinâmica"></textarea>
-    </details>
-
-    <details class="req"><summary>2 · Problema a ser resolvido <span class="done" data-sec="pro"></span></summary>
-      <label class="chk"><input type="checkbox" data-rk="pro_rigidez">Baixa rigidez estrutural em CNCs de pequeno/médio porte</label>
-      <label class="chk"><input type="checkbox" data-rk="pro_chatter">Vibração excessiva (chatter) na usinagem de alumínio</label>
-      <label class="chk"><input type="checkbox" data-rk="pro_montagem">Projetos que só funcionam montados com extremo cuidado</label>
-      <label class="chk"><input type="checkbox" data-rk="pro_doc">Ausência de documentação técnica p/ fabricação repetível</label>
-      <span class="rlabel">Descrição detalhada</span><textarea class="rtxt" rows="2" data-rk="pro_desc"></textarea>
-    </details>
-
-    <details class="req"><summary>3 · Aplicação prevista <span class="done" data-sec="apl"></span></summary>
-      <span class="rlabel">Materiais principais</span>
-      <label class="chk"><input type="checkbox" data-rk="apl_alu">Alumínio</label>
-      <label class="chk"><input type="checkbox" data-rk="apl_mad">Madeira (secundário)</label>
-      <label class="chk"><input type="checkbox" data-rk="apl_pla">Plásticos</label>
-      <span class="rlabel">Tipo de uso</span>
-      <label class="chk"><input type="checkbox" data-rk="apl_prof">Profissional</label>
-      <label class="chk"><input type="checkbox" data-rk="apl_prod">Produção leve / sob demanda</label>
-      <label class="chk"><input type="checkbox" data-rk="apl_hobby">Hobby</label>
-    </details>
-
-    <details class="req"><summary>4 · Requisitos funcionais (chave) <span class="done" data-sec="fun"></span></summary>
-      <span class="rlabel">01 — Área útil (vem da configuração acima)</span>
-      <input class="rtxt" id="reqArea" disabled>
-      <label class="chk"><input type="checkbox" data-rk="fun_semsolda">02 — Estrutura sem solda (permite alinhamento)</label>
-      <span class="rlabel">03 — Precisão (meta de projeto, mm)</span><input class="rtxt" data-rk="fun_precisao" placeholder="ex.: ≤ 0,05 mm">
-      <span class="rlabel">04 — Repetibilidade (critério de validação, mm)</span><input class="rtxt" data-rk="fun_repet" placeholder="ex.: ≤ 0,03 mm">
-    </details>
-
-    <details class="req"><summary>5–6 · Mecânica e movimento <span class="done" data-sec="mec"></span></summary>
-      <label class="chk"><input type="checkbox" data-rk="mec_perfis">Estrutura: perfis de alumínio extrudado</label>
-      <label class="chk"><input type="checkbox" data-rk="mec_chapas">Estrutura: chapas de aço cortadas a laser e dobradas</label>
-      <label class="chk"><input type="checkbox" data-rk="mec_rigidez">Critério de rigidez: usinar alumínio com avanço constante sem chatter visível</label>
-      <label class="chk"><input type="checkbox" data-rk="mec_amortec">Controle de vibração: geometria + preenchimento amortecedor (epóxi)</label>
-      <label class="chk"><input type="checkbox" data-rk="mec_fusoXYZ">Transmissão: fuso de esferas nos eixos X, Y e Z</label>
-      <span class="rlabel">Velocidade de corte alvo (mm/min)</span><input class="rtxt" data-rk="mec_vcorte" placeholder="até 5.000">
-      <span class="rlabel">Deslocamento rápido alvo (mm/min)</span><input class="rtxt" data-rk="mec_vrapido" placeholder="até 20.000">
-    </details>
-
-    <details class="req"><summary>7 · Elétrica e eletrônica <span class="done" data-sec="ele"></span></summary>
-      <span class="rlabel">Alimentação</span>
-      <label class="chk"><input type="checkbox" data-rk="ele_110">110 V monofásico</label>
-      <label class="chk"><input type="checkbox" data-rk="ele_220">220 V monofásico</label>
-      <span class="rlabel">Spindle (potência / refrigeração)</span><input class="rtxt" data-rk="ele_spindle" placeholder="ex.: 2,2 kW — água">
-      <span class="rlabel">Normas aplicáveis</span>
-      <label class="chk"><input type="checkbox" data-rk="ele_nr10">NR-10 (segurança em instalações elétricas)</label>
-      <label class="chk"><input type="checkbox" data-rk="ele_nr12">NR-12 (segurança em máquinas e equipamentos)</label>
-    </details>
-
-    <details class="req seg" open><summary>8 · REQUISITOS DE SEGURANÇA <span class="done" data-sec="seg"></span></summary>
-      <label class="chk"><input type="checkbox" data-rk="seg_estop">Botão de emergência</label>
-      <label class="chk"><input type="checkbox" data-rk="seg_rele">Relé de segurança</label>
-      <label class="chk"><input type="checkbox" data-rk="seg_terra">Aterramento funcional e de proteção</label>
-      <label class="chk"><input type="checkbox" data-rk="seg_enclau">Enclausuramento completo</label>
-      <label class="chk"><input type="checkbox" data-rk="seg_porta">Intertravamento de portas</label>
-      <span class="rlabel">Objetivo: permitir operação segura em ambiente profissional.</span>
-    </details>
-
-    <details class="req"><summary>9–10 · Fabricação, qualidade e inspeção <span class="done" data-sec="fab"></span></summary>
-      <label class="chk"><input type="checkbox" data-rk="fab_laser">Corte a laser</label>
-      <label class="chk"><input type="checkbox" data-rk="fab_dobra">Dobra CNC</label>
-      <label class="chk"><input type="checkbox" data-rk="fab_usinagem">Usinagem</label>
-      <span class="rlabel">Tolerâncias críticas</span><input class="rtxt" data-rk="fab_tol" placeholder="ex.: furos de mancal ±0,02 mm">
-      <span class="rlabel">Verificação de conformidade</span>
-      <label class="chk"><input type="checkbox" data-rk="fab_checklist">Checklist dimensional</label>
-      <label class="chk"><input type="checkbox" data-rk="fab_esquadro">Medição de esquadro</label>
-      <label class="chk"><input type="checkbox" data-rk="fab_repet">Teste de repetibilidade</label>
-      <label class="chk"><input type="checkbox" data-rk="fab_usin">Teste de usinagem</label>
-    </details>
-
-    <details class="req"><summary>11–13 · Custo, evolução e restrições <span class="done" data-sec="cus"></span></summary>
-      <span class="rlabel">Custo alvo de fabricação (o total do configurador aparece aqui como referência)</span>
-      <input class="rtxt" data-rk="cus_alvo" placeholder="ex.: R$ 25.000">
-      <span class="rlabel">O produto deve permitir</span>
-      <label class="chk"><input type="checkbox" data-rk="cus_atualiza">Atualizações</label>
-      <label class="chk"><input type="checkbox" data-rk="cus_melhoria">Melhorias futuras</label>
-      <label class="chk"><input type="checkbox" data-rk="cus_custom">Customizações</label>
-      <span class="rlabel">Restrições: peso máx. / dimensão de transporte / fornecedores</span>
-      <textarea class="rtxt" rows="2" data-rk="cus_restr" placeholder="ex.: peso máx. 250 kg; passar em porta de 80 cm; fuso importado 30 dias"></textarea>
-    </details>
-
-    <details class="req"><summary>14 · Aprovação <span class="done" data-sec="apr"></span></summary>
-      <span class="rlabel">Responsável técnico</span><input class="rtxt" data-rk="apr_resp">
-      <span class="rlabel">Data da aprovação</span><input class="rtxt" data-rk="apr_data" placeholder="__/__/____">
-      <label class="chk"><input type="checkbox" data-rk="apr_ok">Requisitos revisados e aprovados — o projeto pode avançar</label>
-    </details>
+  <h2>Seus dados</h2>
+  <p class="note" style="margin-top:0">Vão junto na planilha e no e-mail, para conseguirmos retornar com o orçamento.
+  Ficam salvos só neste navegador.</p>
+  <div class="cgrid">
+    <label class="cf"><span>Nome</span><input class="rtxt" data-ck="nome" autocomplete="name" placeholder="como podemos te chamar"></label>
+    <label class="cf"><span>E-mail</span><input class="rtxt" type="email" data-ck="email" autocomplete="email" placeholder="para onde mandamos o orçamento"></label>
+    <label class="cf"><span>WhatsApp</span><input class="rtxt" type="tel" data-ck="whats" autocomplete="tel" placeholder="(00) 00000-0000"></label>
+    <label class="cf"><span>Cidade / UF</span><input class="rtxt" data-ck="cidade" placeholder="para calcular o frete"></label>
   </div>
+  <label class="cf" style="margin-top:12px">
+    <span>O que você pretende produzir? (opcional, mas ajuda muito)</span>
+    <textarea class="rtxt" rows="2" data-ck="obs" placeholder="ex.: peças de alumínio para protótipos, até 300 × 200 mm"></textarea>
+  </label>
 </div>
 
 <p class="foot">
-  Links do Mercado Livre apontam para a <b>busca</b> do produto (anúncios individuais mudam de preço e saem do ar — a busca mostra sempre as ofertas ativas mais baratas).<br>
-  Preços verificados em 14/07/2026: kit easy servo 8 Nm R$1.153 e 4,5 Nm R$1.194 (TECMAF, em estoque) · NEMA 23 31 kgf + DM556 R$369 / 23 kgf R$259 (OceanTech, em estoque) · spindle 2,2 kW água R$1.919 só o motor (CNC Motion, 5 dias úteis — inversor à parte) · DDCS Expert nacional R$5.840 (MachCNC, sob encomenda). O kit easy servo da PiscaLED está <b>indisponível</b> e o kit NEMA 34 aberto da TECMAF também (avulsos: motor R$377 + driver R$370).<br>
-  Cupons citados na série Atividade Maker: OBR Automação (até 40% movimentação linear / 15% automação, via WhatsApp, avisar "Atividade Maker") e Forseti (<b>MAKER10</b> = 10%).<br>
-  Referência técnica: série <a href="https://www.youtube.com/playlist?list=PLQXjHQyol0PJDyd2qNIb8b4Dy96XHSqM5" target="_blank" rel="noopener">Router CNC — Revolution Pro 75 (Atividade Maker)</a> — ver "CNC Router Aluminio - Passo a Passo.md" nesta pasta.
+  Os links do Mercado Livre abrem a <b>busca</b> do produto, não um anúncio fixo: assim você sempre vê as ofertas
+  ativas mais baratas. Preços conferidos em 14/07/2026 e sujeitos a alteração pelas lojas.
+  Achou mais barato em outro lugar? Clique no ✎ ao lado da loja e cole o link novo.
 </p>
 
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
