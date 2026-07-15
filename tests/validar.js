@@ -124,14 +124,24 @@ async function testConfigurador(){
         if(!(total>0&&Number.isFinite(total))) throw new Error("total inválido");
         menor=Math.min(menor,total); maior=Math.max(maior,total); combinacoes++;
       }
-    let desenhos=0, svgExemplo="";
+    let desenhos=0, svgExemplo="", cortados=[], rotulos=0;
     for(const x of LENS) for(const y of LENS) for(const z of ZLENS){
       Object.assign(state,{x,y,z}); draw3D();
       const svg=document.getElementById("viz").innerHTML;
       if(svg.includes("NaN")||!svg.includes("<polygon")) throw new Error("SVG inválido");
+      // nenhum rótulo de cota pode vazar do viewBox: o texto fica deslocado da seta e some na borda
+      const vb=svg.match(/viewBox="0 0 ([\\d.]+) ([\\d.]+)"/);
+      if(!vb) throw new Error("viewBox inesperado");
+      const vw=parseFloat(vb[1]), vh=parseFloat(vb[2]);
+      for(const m of svg.matchAll(/<text x="([-\\d.]+)" y="([-\\d.]+)"[^>]*>([^<]+)<\\/text>/g)){
+        const tx=parseFloat(m[1]), ty=parseFloat(m[2]), meia=m[3].length*4.6;
+        rotulos++;
+        if(tx-meia<0||tx+meia>vw||ty<0||ty>vh) cortados.push(x+"x"+y+"x"+z+' "'+m[3]+'"');
+      }
       svgExemplo=svg;
       desenhos++;
     }
+    if(cortados.length) throw new Error("rótulo cortado pela borda: "+cortados.slice(0,3).join(" | "));
     Object.assign(state,{mat:"aluminio",trans:"fuso",motor:"closed34",perfil:"p4040r",x:700,y:500,z:400,modo:"montador"});
     const base=buildBOM().find(r=>r.id==="maoobra");
     const montadorLock=!!base.lock;
@@ -144,10 +154,12 @@ async function testConfigurador(){
     contato.nome="Fulano"; contato.email="fulano@exemplo.com"; contato.whats="(22) 90000-0000";
     const excel=buildExcelXml();
     return {combinacoes,desenhos,menor,maior,baseHoras:base.qty,baseValor:base.qty*base.price,
-      grandeHoras:grande.qty,montadorLock,clienteLock,svg:svgExemplo,xml:excel.xml,nome:excel.nome};
+      grandeHoras:grande.qty,montadorLock,clienteLock,rotulos,svg:svgExemplo,xml:excel.xml,nome:excel.nome};
   })()`,context);
   assert.equal(stats.combinacoes,5400);
   assert.equal(stats.desenhos,75);
+  // 4 rótulos por desenho (X, Y, Z e a legenda): garante que a checagem de corte de fato inspecionou
+  assert.equal(stats.rotulos,300,"a checagem de rótulos não inspecionou o esperado");
   assert.equal(stats.baseHoras,60);
   assert.equal(stats.baseValor,4200);
   assert.equal(stats.grandeHoras,125);

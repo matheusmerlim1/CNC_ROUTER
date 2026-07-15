@@ -20,8 +20,7 @@ h1{font-size:var(--fs-sub);margin:0 0 4px;font-weight:700}
 .card-viz{margin-bottom:20px}
 .card-dados{margin-top:20px}
 .note-top{margin-top:0}
-#viz{overflow-x:auto}
-#viz .maquina{width:100%;max-width:840px;display:block;margin:0 auto}
+#viz .maquina{width:100%;max-width:560px;display:block;margin:0 auto}
 .opts{display:flex;flex-wrap:wrap;gap:8px}
 .opt{border:1px solid var(--line);border-radius:8px;padding:8px 14px;cursor:pointer;background:transparent;
   color:var(--ink);font-family:inherit;font-size:.92rem;transition:border-color .15s ease,background .15s ease}

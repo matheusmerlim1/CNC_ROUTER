@@ -168,20 +168,22 @@ function buildBOM(){
 }
 
 /* ---------- desenho isométrico da máquina ----------
-   Mesma máquina da landing, mas dirigida pelo X/Y/Z escolhidos. As cores vêm dos tokens
-   de base.css, então o desenho acompanha o tema. viewBox calculado pelo conteúdo real. */
+   Mesma máquina da landing, dirigida pelo X/Y/Z escolhidos. Cores por classe (tokens em base.css).
+   Tela de tamanho FIXO com a máquina ajustada dentro: assim o desenho não muda de tamanho conforme
+   a mesa, e as cotas ficam sempre no mesmo corpo de texto. As margens reservam espaço para os
+   rótulos, que ficam deslocados das setas e antes eram cortados pela borda. */
+const VIZ_W=720, VIZ_H=380, VIZ_CAP=22, VIZ_PADX=70, VIZ_PADY=26;
 function draw3D(){
   const X=state.x, Y=state.y, Zc=state.z;
-  const C=0.866, S=0.5, k=0.30;
+  const C=0.866, S=0.5;
   const baseH=78, topH=20, railW=Math.min(40, Y*0.07), railH=16;
   const colW=78, colD=62, colH=200+Zc, beamH=84;
   const gx=(X-colW)/2, zW=64, zLen=Zc+120;
   const zTop=baseH+topH, beamZ=zTop+colH, zEnd=beamZ+beamH-10;
 
-  const pts=[];
-  const P=(x,y,z)=>{const p=[(x-y)*C*k,(x+y)*S*k-z*k];pts.push(p);return p;};
+  let k=1, ox=0, oy=0, pts=[], out=[];
+  const P=(x,y,z)=>{const p=[ox+(x-y)*C*k, oy+(x+y)*S*k-z*k];pts.push(p);return p;};
   const n=v=>v.toFixed(1);
-  const out=[];
   // pinta por classe (regras em base.css): var() em atributo de apresentação tem suporte irregular
   const poly=(pp,cls,extra="")=>out.push(`<polygon points="${pp.map(p=>`${n(p[0])},${n(p[1])}`).join(" ")}" class="${cls}"${extra}/>`);
   const line=(a,b,cls,w)=>out.push(`<line x1="${n(a[0])}" y1="${n(a[1])}" x2="${n(b[0])}" y2="${n(b[1])}" class="${cls}" stroke-width="${w}" stroke-linecap="round"/>`);
@@ -193,6 +195,18 @@ function draw3D(){
   const M=["m1","m2","m3"], TP=["tp1","tp2","tp3"], A=["a1","a2","a3"], T=["t1","t2","t3"];
   const F=["f1","f2","f3"], W=["w1","w2","w3"], Zc3=["z1","z2","z3"], SP=["s1","s2","s3"];
 
+  const CX="#e5484d", CY="#2f9e63", CZ="#3b82f6";
+  const mk=c=>`<marker id="ah-${c.slice(1)}" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" fill="${c}"/></marker>`;
+  const fx=v=>(v/1000).toLocaleString("pt-BR");
+  let ar="";
+  const cota=(p1,p2,cor,label,dxT,dyT)=>{
+    ar+=`<line x1="${n(p1[0])}" y1="${n(p1[1])}" x2="${n(p2[0])}" y2="${n(p2[1])}" stroke="${cor}" stroke-width="2" marker-start="url(#ah-${cor.slice(1)})" marker-end="url(#ah-${cor.slice(1)})"/>`+
+      `<text x="${n((p1[0]+p2[0])/2+dxT)}" y="${n((p1[1]+p2[1])/2+dyT)}" fill="${cor}" font-size="15" font-weight="600" class="cota" text-anchor="middle">${label}</text>`;
+  };
+
+  // desenha tudo; roda duas vezes: a 1ª mede (k=1), a 2ª desenha já ajustado à tela
+  function build(){
+  pts=[]; out=[]; ar="";
   box(0,0,0,X,Y,baseH,M);                                   // base
   box(-10,-10,baseH,X+20,Y+20,topH,TP);                     // tampo
   const nSlots=Math.max(3,Math.min(9,Math.round(Y/110)));   // rasgos T acompanham a largura
@@ -220,28 +234,26 @@ function draw3D(){
   box(spx+12,spy+14,spZ-16,22,24,16,["c1","c2","c3"]);      // pinça
   box(spx+18,spy+19,spZ-42,10,14,26,["tool1","tool2","tool3"]); // fresa
   box(gx,Y,zTop,colW,colD,colH,A);                          // coluna fundo
+  cota(P(0,-colD-130,0),P(X,-colD-130,0),CX,`X ${fx(X)} m`,20,-9);
+  cota(P(X+140,0,0),P(X+140,Y,0),CY,`Y ${fx(Y)} m`,26,20);
+  cota(P(gx+colW/2,Y+colD+150,zTop),P(gx+colW/2,Y+colD+150,zTop+Zc),CZ,`Z ${Zc} mm`,-46,4);
+  }
 
-  // cotas
-  const CX="#e5484d", CY="#2f9e63", CZ="#3b82f6";
-  const mk=c=>`<marker id="ah-${c.slice(1)}" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" fill="${c}"/></marker>`;
-  const cota=(p1,p2,cor,label,dxT,dyT)=>
-    `<line x1="${n(p1[0])}" y1="${n(p1[1])}" x2="${n(p2[0])}" y2="${n(p2[1])}" stroke="${cor}" stroke-width="2" marker-start="url(#ah-${cor.slice(1)})" marker-end="url(#ah-${cor.slice(1)})"/>`+
-    `<text x="${n((p1[0]+p2[0])/2+dxT)}" y="${n((p1[1]+p2[1])/2+dyT)}" fill="${cor}" font-size="15" font-weight="600" class="cota" text-anchor="middle">${label}</text>`;
-  const fx=v=>(v/1000).toLocaleString("pt-BR");
-  const ar=
-    cota(P(0,-colD-130,0),P(X,-colD-130,0),CX,`X ${fx(X)} m`,20,-9)+
-    cota(P(X+140,0,0),P(X+140,Y,0),CY,`Y ${fx(Y)} m`,26,20)+
-    cota(P(gx+colW/2,Y+colD+150,zTop),P(gx+colW/2,Y+colD+150,zTop+Zc),CZ,`Z ${Zc} mm`,-46,4);
-
+  build();                                                  // 1ª passada: mede em escala 1
   const xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]);
-  const pad=14;
-  const minX=Math.min(...xs)-pad, minY=Math.min(...ys)-pad;
-  const w=Math.max(...xs)-minX+pad, h=Math.max(...ys)-minY+pad+22;
+  const minX=Math.min(...xs), minY=Math.min(...ys);
+  const bw=Math.max(...xs)-minX, bh=Math.max(...ys)-minY;
+  const dispW=VIZ_W-2*VIZ_PADX, dispH=VIZ_H-VIZ_CAP-2*VIZ_PADY;
+  k=Math.min(dispW/bw, dispH/bh);
+  ox=VIZ_PADX-minX*k+(dispW-bw*k)/2;                        // centraliza na área útil
+  oy=VIZ_PADY-minY*k+(dispH-bh*k)/2;
+  build();                                                  // 2ª passada: desenha ajustado
+
   document.getElementById("viz").innerHTML=
-    `<svg class="maquina" viewBox="${n(minX)} ${n(minY)} ${n(w)} ${n(h)}" xmlns="http://www.w3.org/2000/svg">`+
+    `<svg class="maquina" viewBox="0 0 ${VIZ_W} ${VIZ_H}" xmlns="http://www.w3.org/2000/svg">`+
     `<defs>${mk(CX)}${mk(CY)}${mk(CZ)}</defs>`+
     `<g class="corpo" stroke-width="1" stroke-linejoin="round">${out.join("")}</g>${ar}`+
-    `<text x="${n(minX+w/2)}" y="${n(minY+h-4)}" fill="currentColor" opacity=".55" font-size="13" text-anchor="middle">Mesa ${fx(X)} × ${fx(Y)} m · pórtico móvel no X · curso Z ${Zc} mm — esquema ilustrativo</text></svg>`;
+    `<text x="${VIZ_W/2}" y="${VIZ_H-6}" fill="currentColor" opacity=".55" font-size="13" text-anchor="middle">Mesa ${fx(X)} × ${fx(Y)} m · pórtico móvel no X · curso Z ${Zc} mm — esquema ilustrativo</text></svg>`;
 }
 
 /* ---------- render ---------- */
@@ -564,7 +576,7 @@ contatoCampos().forEach(el=>{
   el.value=contato[k]||"";
   el.oninput=()=>{contato[k]=el.value;localStorage.setItem(CONTKEY,JSON.stringify(contato));};
 });
-const contatoRotulos={nome:"Nome",email:"E-mail",whats:"WhatsApp",cidade:"Cidade / UF",obs:"O que pretende produzir"};
+const contatoRotulos={nome:"Nome",email:"E-mail do cliente",whats:"WhatsApp do cliente",cidade:"Cidade / UF",obs:"O que pretende produzir"};
 function contatoTexto(){
   return Object.keys(contatoRotulos)
     .filter(k=>(contato[k]||"").trim())
