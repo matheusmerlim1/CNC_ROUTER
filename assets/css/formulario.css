@@ -19,10 +19,13 @@ label.chk input{margin-top:4px;accent-color:var(--accent)}
 .toolbar{position:sticky;top:8px;z-index:5;display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:var(--card);
   border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:16px;box-shadow:var(--shadow)}
 .toolbar button{border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:600;border-radius:8px;
-  padding:8px 14px;cursor:pointer;font-size:1rem;font-family:var(--font-head)}
+  padding:9px 15px;cursor:pointer;font-size:1rem;font-family:inherit;
+  transition:border-color .15s ease,filter .15s ease,transform .12s ease}
+.toolbar button:hover{border-color:var(--accent);filter:brightness(1.04)}
+.toolbar button:active{transform:translateY(1px)}
 .toolbar button.primary{background:#0f7a3d;color:#fff;border-color:#0f7a3d}
 .toolbar button.accent{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-soft)}
-.toolbar button:disabled{opacity:.6;cursor:default}
+.toolbar button:disabled{opacity:.6;cursor:default;transform:none}
 .toolbar .saved{margin-left:auto;color:var(--ok);font-size:.75rem}
 .sign{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-top:24px}
 .sign div{border-top:1px solid var(--ink);padding-top:6px;font-size:.75rem;color:var(--muted);text-align:center}

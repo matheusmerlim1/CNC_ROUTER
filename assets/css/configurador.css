@@ -6,7 +6,10 @@ h1{font-size:var(--fs-sub);margin:0 0 4px;font-weight:700}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;flex:1;min-width:230px}
 .card h2{margin:0 0 10px;font-size:var(--fs-label);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
 .opts{display:flex;flex-wrap:wrap;gap:8px}
-.opt{border:1px solid var(--line);border-radius:8px;padding:8px 14px;cursor:pointer;background:transparent;color:var(--ink);font-size:.92rem}
+.opt{border:1px solid var(--line);border-radius:8px;padding:8px 14px;cursor:pointer;background:transparent;
+  color:var(--ink);font-family:inherit;font-size:.92rem;transition:border-color .15s ease,background .15s ease}
+.opt:hover{border-color:var(--accent);background:var(--accent-soft)}
+.opt:active{transform:translateY(1px)}
 .opt.sel{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
 .axisrow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .axisrow span{width:52px;font-weight:600;font-size:.9rem}
@@ -29,7 +32,9 @@ td.num,.sub-total{font-family:var(--font-mono);font-variant-numeric:tabular-nums
 .qty,.price{width:80px;text-align:right;border:1px dashed var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:4px 6px;font-family:var(--font-mono);font-size:.85rem;font-variant-numeric:tabular-nums}
 .price{width:100px}
 .qty:focus,.price:focus{border-color:var(--accent);outline:none}
-.inc{width:38px;height:26px;border-radius:14px;border:1px solid var(--line);cursor:pointer;background:var(--line);position:relative;padding:0}
+.inc{width:38px;height:26px;border-radius:14px;border:1px solid var(--line);cursor:pointer;background:var(--line);
+  position:relative;padding:0;transition:background .15s ease,border-color .15s ease}
+.inc:hover{border-color:var(--accent)}
 .inc::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:var(--card);transition:transform .15s ease}
 .inc.on{background:var(--ok);border-color:var(--ok)}
 .inc.on::after{transform:translateX(12px)}
@@ -43,12 +48,16 @@ td.num,.sub-total{font-family:var(--font-mono);font-variant-numeric:tabular-nums
 .foot{color:var(--muted);font-size:.8rem;margin-top:14px;line-height:1.5}
 .topbar{display:flex;align-items:center;gap:14px;margin-bottom:6px}
 .topbar a.back{font-size:.85rem;color:var(--muted)}
-button.reset{margin-left:auto;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:8px;padding:6px 12px;cursor:pointer}
-button.reset:hover{color:var(--ink)}
+button.reset{margin-left:auto;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:8px;
+  padding:7px 13px;cursor:pointer;font-family:inherit;font-size:.9rem;transition:color .15s ease,border-color .15s ease}
+button.reset:hover{color:var(--ink);border-color:var(--accent)}
+button.reset:active{transform:translateY(1px)}
 /* verde fixo escuro o bastante para texto branco passar em AA nos dois temas */
-button.send{border:1px solid #0f7a3d;background:#0f7a3d;color:#fff;font-weight:600;border-radius:8px;padding:6px 14px;cursor:pointer}
+button.send{border:1px solid #0f7a3d;background:#0f7a3d;color:#fff;font-weight:600;border-radius:8px;padding:7px 15px;
+  cursor:pointer;font-family:inherit;font-size:.9rem;transition:filter .15s ease,transform .12s ease}
 button.send:hover{filter:brightness(1.08)}
-button.send:disabled{opacity:.6;cursor:default}
+button.send:active{transform:translateY(1px)}
+button.send:disabled{opacity:.6;cursor:default;transform:none}
 /* formulário de requisitos */
 .reqgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:12px;margin-top:12px}
 details.req{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 14px}

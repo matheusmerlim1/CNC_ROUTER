@@ -12,9 +12,11 @@
   /* aço para o hero */
   --steel-1:#e2e7ed; --steel-2:#ccd3dc;
   --shadow:0 2px 10px rgba(20,30,50,.08);
-  --font-head:"IBM Plex Sans Condensed","Segoe UI Semibold",system-ui,sans-serif;
-  --font-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
-  --font-mono:"IBM Plex Mono",ui-monospace,"Cascadia Code",Consolas,monospace;
+  /* Archivo: grotesca de sinalização industrial, com eixo de largura (wdth) para o nameplate.
+     Spline Sans Mono nos dados: mono é ganho aqui (cotas, G-code), não fantasia técnica. */
+  --font-head:"Archivo","Segoe UI",system-ui,sans-serif;
+  --font-body:"Archivo","Segoe UI",system-ui,sans-serif;
+  --font-mono:"Spline Sans Mono",ui-monospace,"Cascadia Code",Consolas,monospace;
   /* escala tipográfica — poucos degraus, bem separados */
   --fs-label:.72rem; --fs-small:.82rem; --fs-body:1rem; --fs-lead:1.18rem; --fs-sub:1.4rem;
 }
