@@ -17,7 +17,8 @@ body{margin:0;min-height:100vh}
 .masthead .spacer{flex:1}
 
 /* hero — composição assimétrica: a tese à esquerda, o objeto à direita */
-.hero{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+/* overflow:hidden contém o ::before, que sangra 6% para fora e criava rolagem horizontal no celular */
+.hero{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
   gap:clamp(20px,4vw,48px);align-items:center;padding:clamp(24px,4vw,44px) 0 clamp(28px,4vw,44px)}
 .hero::before{content:"";position:absolute;inset:-10% -6% -10% -6%;z-index:0;pointer-events:none;opacity:.5;
   background-image:radial-gradient(var(--line) 1px,transparent 1px);background-size:24px 24px;
@@ -91,3 +92,19 @@ body{margin:0;min-height:100vh}
 .btn.ghost{background:transparent}
 .btn.ghost:hover{border-color:var(--accent);color:var(--accent)}
 .foot{color:var(--muted);font-size:var(--i-label);margin:22px 0 40px}
+
+/* toque: sem mouse não há hover, então o estado de repouso tem que se bastar */
+@media (hover: none){
+  .panel:hover{transform:none;border-color:var(--line);box-shadow:var(--shadow)}
+  .panel:hover .go::after{transform:none}
+  .btn:hover{filter:none}
+  .btn.ghost:hover{border-color:var(--line);color:var(--ink)}
+}
+@media (max-width: 760px){
+  .wrap{padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+  .hero{padding-top:18px}
+  .hero-cta .btn{flex:1;justify-content:center;min-width:150px}
+  .contact .btns{width:100%}
+  .contact .btns .btn{flex:1;justify-content:center}
+  .foot{margin-bottom:max(40px,env(safe-area-inset-bottom))}
+}

@@ -80,6 +80,56 @@ button.send:active{transform:translateY(1px)}
 button.send:disabled{opacity:.6;cursor:default;transform:none}
 /* campos de texto (dados do solicitante) */
 .rtxt{width:100%;border:1px dashed var(--line);background:transparent;color:var(--ink);border-radius:6px;
-  padding:7px 9px;font-family:inherit;font-size:.95rem;transition:border-color .15s ease}
+  padding:7px 9px;font-family:inherit;font-size:1rem;transition:border-color .15s ease}
 .rtxt:hover{border-color:var(--muted)}
 .rtxt:focus{border-color:var(--accent);border-style:solid;outline:none}
+
+/* ---------- toque: alvos maiores onde não há mouse ---------- */
+@media (pointer: coarse){
+  .opt{padding:11px 16px}
+  .inc{width:46px;height:30px}
+  .inc::after{width:24px;height:24px}
+  .inc.on::after{transform:translateX(16px)}
+  /* estende a área de toque para ~44px sem engordar a chave: o ::before invisível conta no clique */
+  .inc::before{content:"";position:absolute;inset:-8px;border-radius:18px}
+  .lnk{padding:8px 10px;font-size:1rem}
+}
+/* efeitos de passar o mouse só onde existe mouse */
+@media (hover: none){
+  .opt:hover{border-color:var(--line);background:transparent}
+  .inc:hover{border-color:var(--line)}
+  button.reset:hover{color:var(--muted);border-color:var(--line)}
+}
+
+/* ---------- celular: a tabela de 8 colunas vira lista de cartões ---------- */
+@media (max-width: 760px){
+  body{padding:14px max(14px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
+  .totalbar{position:static}                 /* fixa no topo rouba altura demais no celular */
+  .totalbar .send,.totalbar .reset{flex:1;min-width:132px}
+  .modebar .note{min-width:0}
+  .tablewrap{overflow:visible}
+  table{min-width:0;border:0;background:transparent;font-size:.95rem}
+  thead{display:none}          /* o rótulo de cada campo vem do data-label, o cabeçalho vira redundante */
+  tbody,tr,td{display:block}
+  tr{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+  tr.cat{background:transparent;border:0;border-radius:0;padding:14px 2px 4px;margin:0}
+  tr.cat td{background:transparent;padding:0;border:0;display:flex;justify-content:space-between;gap:10px;font-size:.9rem}
+  tr.cat .catsum{float:none}
+  tr.off{opacity:.55}
+  tr.off td{opacity:1}
+  td{border:0;padding:3px 0;display:flex;align-items:center;justify-content:space-between;gap:14px;text-align:right}
+  td::before{content:attr(data-label);color:var(--muted);font-size:.78rem;text-align:left;flex:none}
+  td.cel-item{display:block;text-align:left;font-weight:600;padding-bottom:6px}
+  td.cel-item::before{display:none}
+  td.det[data-label="Detalhe"]{display:block;text-align:left;padding-bottom:8px}
+  td.det[data-label="Detalhe"]::before{display:block;margin-bottom:2px}
+  td.cel-inc{justify-content:flex-start;gap:10px;padding-bottom:8px}
+  td.num{justify-content:space-between}
+  .qty,.price{width:auto;flex:1;max-width:160px;font-size:1rem}   /* 16px evita o zoom do iOS ao focar */
+  .sub-total{font-size:1.05rem}
+  /* alvo de 44px: o ✎ media 18px e era impossível de acertar com o dedo */
+  .lnk{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;font-size:1.05rem}
+  td.det[data-label="Loja"]{justify-content:space-between;gap:8px}
+  td.det[data-label="Loja"] a{padding:11px 0;display:inline-block}   /* link da loja também precisa de área */
+  .topbar a.back{padding:12px 0;font-size:.95rem}
+}

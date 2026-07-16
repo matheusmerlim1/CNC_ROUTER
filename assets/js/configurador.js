@@ -353,25 +353,25 @@ function render(){
       const tr=document.createElement("tr");
       if(r.off) tr.className="off";
       const badge=r.chk?'<span class="chk">✔ VERIFICADO</span>':(r.est?'<span class="est">EST</span>':'');
-      // linha travada (mão de obra no modo cliente): mostra os valores, sem controles de edição
+      // data-label alimenta o layout de cartão no celular, onde a tabela vira lista
       tr.innerHTML= r.lock
-        ? `<td><span class="fixo" title="Item fixo do orçamento">•</span></td>`+
-          `<td>${r.item}</td>`+
-          `<td class="det">${r.det||""}</td>`+
-          `<td class="num">${r.qtyEff}</td>`+
-          `<td>${r.unit}</td>`+
-          `<td class="num">${fmt(r.priceEff)}</td>`+
-          `<td class="num sub-total">${fmt(r.sub)}</td>`+
-          `<td class="det">${r.storeEff||""}</td>`
-        : `<td><button class="inc${r.off?"":" on"}" data-id="${r.id}" title="${r.off?"Item excluído — clique para incluir":"Item incluído — clique para excluir"}"></button></td>`+
-          `<td>${r.item}${badge}</td>`+
-          `<td class="det">${r.det||""}</td>`+
-          `<td class="num"><input class="qty" data-id="${r.id}" data-f="qty" type="number" min="0" step="any" value="${r.qtyEff}"${r.off?" disabled":""}></td>`+
-          `<td>${r.unit}</td>`+
-          `<td class="num"><input class="price" data-id="${r.id}" data-f="price" type="number" min="0" step="any" value="${+r.priceEff.toFixed(2)}"${r.off?" disabled":""}></td>`+
-          `<td class="num sub-total">${r.off?"—":fmt(r.sub)}</td>`+
-          `<td class="det">${r.linkEff?`<a href="${r.linkEff}" target="_blank" rel="noopener">${r.storeEff}</a>`:(r.storeEff||"")}`+
-          `<button class="lnk${r.customLink?" custom":""}" data-id="${r.id}" title="${r.customLink?"Link personalizado — clique para alterar":"Achou em outro site? Clique para colar o link novo"}">✎</button></td>`;
+        ? `<td class="cel-inc" data-label="Incluir"><span class="fixo" title="Item fixo do orçamento">•</span></td>`+
+          `<td class="cel-item" data-label="Item">${r.item}</td>`+
+          `<td class="det" data-label="Detalhe">${r.det||""}</td>`+
+          `<td class="num" data-label="Qtd">${r.qtyEff}</td>`+
+          `<td data-label="Unid">${r.unit}</td>`+
+          `<td class="num" data-label="Preço unit.">${fmt(r.priceEff)}</td>`+
+          `<td class="num sub-total" data-label="Subtotal">${fmt(r.sub)}</td>`+
+          `<td class="det" data-label="Loja">${r.storeEff||""}</td>`
+        : `<td class="cel-inc" data-label="Incluir"><button class="inc${r.off?"":" on"}" data-id="${r.id}" aria-pressed="${r.off?"false":"true"}" title="${r.off?"Item excluído — clique para incluir":"Item incluído — clique para excluir"}"></button></td>`+
+          `<td class="cel-item" data-label="Item">${r.item}${badge}</td>`+
+          `<td class="det" data-label="Detalhe">${r.det||""}</td>`+
+          `<td class="num" data-label="Qtd"><input class="qty" data-id="${r.id}" data-f="qty" type="number" min="0" step="any" value="${r.qtyEff}"${r.off?" disabled":""} aria-label="Quantidade"></td>`+
+          `<td data-label="Unid">${r.unit}</td>`+
+          `<td class="num" data-label="Preço unit."><input class="price" data-id="${r.id}" data-f="price" type="number" min="0" step="any" value="${+r.priceEff.toFixed(2)}"${r.off?" disabled":""} aria-label="Preço unitário"></td>`+
+          `<td class="num sub-total" data-label="Subtotal">${r.off?"—":fmt(r.sub)}</td>`+
+          `<td class="det" data-label="Loja">${r.linkEff?`<a href="${r.linkEff}" target="_blank" rel="noopener">${r.storeEff}</a>`:(r.storeEff||"")}`+
+          `<button class="lnk${r.customLink?" custom":""}" data-id="${r.id}" aria-label="Trocar o link da loja" title="${r.customLink?"Link personalizado — clique para alterar":"Achou em outro site? Clique para colar o link novo"}">✎</button></td>`;
       tb.appendChild(tr);
     });
   });
