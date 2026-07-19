@@ -21,6 +21,26 @@ const KITZ_LINK="https://www.mercadolivre.com.br/kit-eixo-z-apoiado-20mm-x-500mm
 const MO_HORAS_BASE=60, MO_REF=1200, MO_RS_H=70;
 let overrides = JSON.parse(localStorage.getItem("cncOverrides")||"{}");
 let excluded  = JSON.parse(localStorage.getItem("cncExcluded")||"{}");
+/* Itens acrescentados pelo usuário, por categoria: {categoria:[{id,item,det,qty,unit,price,store,link}]}.
+   As edições deles passam pelo mesmo `overrides` dos itens de fábrica — aqui fica só o registro de criação. */
+let extras = JSON.parse(localStorage.getItem("cncExtras")||"{}");
+const salvaExtras = () => localStorage.setItem("cncExtras",JSON.stringify(extras));
+const salvaOverrides = () => localStorage.setItem("cncOverrides",JSON.stringify(overrides));
+
+/* Unidades de comprimento: trocar entre elas converte quantidade e preço e preserva o subtotal.
+   5,8 m x R$174/m  ->  5800 mm x R$0,174/mm. É o que permite cotar guia linear a R$/mm. */
+const FATOR_COMPRIMENTO = {m:1, cm:0.01, mm:0.001};
+/* Converte quantidade e preço entre unidades de comprimento preservando o subtotal.
+   Devolve null quando a troca não é conversível (ex.: pç -> kit), aí é só trocar o rótulo. */
+function converteUnidade(qty, price, de, para){
+  const fa=FATOR_COMPRIMENTO[de], fn=FATOR_COMPRIMENTO[para];
+  if(!fa || !fn || de===para) return null;
+  const k=fa/fn;                                    // m -> mm: 1/0,001 = 1000
+  return { qty:+(qty*k).toFixed(4), price:+(price/k).toFixed(6) };
+}
+const UNIDADES = ["pç","kit","cj","m","cm","mm","h","vb","lic","par","barra","jogo"];
+const escAttr = s => String(s==null?"":s)
+  .replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 
 const byLen = (tab,len) => tab[len];
 
@@ -164,6 +184,14 @@ function buildBOM(){
       : `Montagem, alinhamento, ajuste e teste da máquina, já no orçamento. Estimativa de ${horas} h para esta configuração.`,
     qty:horas,unit:"h",price:MO_RS_H,store:"—",lock:!souMontador});
   add({id:"frete",cat:"Mão de obra e frete",item:"Fretes (estimativa)",det:"",qty:1,unit:"vb",price:600,est:true,store:"—"});
+
+  /* ---------- itens acrescentados pelo usuário ---------- */
+  Object.keys(extras).forEach(cat=>{
+    (extras[cat]||[]).forEach(e=>{
+      add({id:e.id,cat,item:e.item,det:e.det,qty:e.qty,unit:e.unit,price:e.price,
+        store:e.store||"",link:e.link||"",extra:true});
+    });
+  });
   return rows;
 }
 
@@ -336,6 +364,9 @@ function render(){
     const o = r.lock ? {} : (overrides[r.id]||{});
     r.qtyEff = o.qty!==undefined?o.qty:r.qty;
     r.priceEff = o.price!==undefined?o.price:r.price;
+    r.itemEff = o.item!==undefined?o.item:r.item;
+    r.detEff = o.det!==undefined?o.det:(r.det||"");
+    r.unitEff = o.unit!==undefined?o.unit:r.unit;
     r.linkEff = o.link||r.link;
     r.storeEff = o.store||r.store;
     r.customLink = !!o.link;
@@ -347,7 +378,9 @@ function render(){
   });
   cats.forEach(cat=>{
     const trc=document.createElement("tr");trc.className="cat";
-    trc.innerHTML=`<td colspan="8">${cat}<span class="catsum">${fmt(catTotals[cat])}</span></td>`;
+    trc.innerHTML=`<td colspan="8"><span class="catnome">${escAttr(cat)}</span>`+
+      `<button class="addit" data-cat="${escAttr(cat)}" title="Acrescentar um item nesta categoria">+ item</button>`+
+      `<span class="catsum">${fmt(catTotals[cat])}</span></td>`;
     tb.appendChild(trc);
     rows.filter(r=>r.cat===cat).forEach(r=>{
       const tr=document.createElement("tr");
@@ -356,31 +389,85 @@ function render(){
       // data-label alimenta o layout de cartão no celular, onde a tabela vira lista
       tr.innerHTML= r.lock
         ? `<td class="cel-inc" data-label="Incluir"><span class="fixo" title="Item fixo do orçamento">•</span></td>`+
-          `<td class="cel-item" data-label="Item">${r.item}</td>`+
-          `<td class="det" data-label="Detalhe">${r.det||""}</td>`+
+          `<td class="cel-item" data-label="Item">${escAttr(r.itemEff)}</td>`+
+          `<td class="det" data-label="Detalhe">${escAttr(r.detEff)}</td>`+
           `<td class="num" data-label="Qtd">${r.qtyEff}</td>`+
-          `<td data-label="Unid">${r.unit}</td>`+
+          `<td data-label="Unid">${escAttr(r.unitEff)}</td>`+
           `<td class="num" data-label="Preço unit.">${fmt(r.priceEff)}</td>`+
           `<td class="num sub-total" data-label="Subtotal">${fmt(r.sub)}</td>`+
           `<td class="det" data-label="Loja">${r.storeEff||""}</td>`
         : `<td class="cel-inc" data-label="Incluir"><button class="inc${r.off?"":" on"}" data-id="${r.id}" aria-pressed="${r.off?"false":"true"}" title="${r.off?"Item excluído — clique para incluir":"Item incluído — clique para excluir"}"></button></td>`+
-          `<td class="cel-item" data-label="Item">${r.item}${badge}</td>`+
-          `<td class="det" data-label="Detalhe">${r.det||""}</td>`+
+          `<td class="cel-item" data-label="Item">`+
+            `<input class="nome" data-id="${r.id}" data-f="item" value="${escAttr(r.itemEff)}" placeholder="nome do item" aria-label="Nome do item"${r.off?" disabled":""}>`+
+            badge+
+            (r.extra?`<button class="rmit" data-id="${r.id}" title="Remover este item que você acrescentou">remover</button>`:"")+
+          `</td>`+
+          `<td class="det" data-label="Detalhe"><input class="descr" data-id="${r.id}" data-f="det" value="${escAttr(r.detEff)}" placeholder="descrição (opcional)" aria-label="Descrição"${r.off?" disabled":""}></td>`+
           `<td class="num" data-label="Qtd"><input class="qty" data-id="${r.id}" data-f="qty" type="number" min="0" step="any" value="${r.qtyEff}"${r.off?" disabled":""} aria-label="Quantidade"></td>`+
-          `<td data-label="Unid">${r.unit}</td>`+
-          `<td class="num" data-label="Preço unit."><input class="price" data-id="${r.id}" data-f="price" type="number" min="0" step="any" value="${+r.priceEff.toFixed(2)}"${r.off?" disabled":""} aria-label="Preço unitário"></td>`+
+          `<td data-label="Unid"><input class="unid" data-id="${r.id}" data-f="unit" list="listaUnidades" value="${escAttr(r.unitEff)}" aria-label="Unidade"${r.off?" disabled":""}></td>`+
+          `<td class="num" data-label="Preço unit."><input class="price" data-id="${r.id}" data-f="price" type="number" min="0" step="any" value="${+r.priceEff.toFixed(6)}"${r.off?" disabled":""} aria-label="Preço unitário"></td>`+
           `<td class="num sub-total" data-label="Subtotal">${r.off?"—":fmt(r.sub)}</td>`+
           `<td class="det" data-label="Loja">${r.linkEff?`<a href="${r.linkEff}" target="_blank" rel="noopener">${r.storeEff}</a>`:(r.storeEff||"")}`+
           `<button class="lnk${r.customLink?" custom":""}" data-id="${r.id}" aria-label="Trocar o link da loja" title="${r.customLink?"Link personalizado — clique para alterar":"Achou em outro site? Clique para colar o link novo"}">✎</button></td>`;
       tb.appendChild(tr);
     });
   });
-  tb.querySelectorAll("input").forEach(inp=>{
+  tb.querySelectorAll("input.qty,input.price").forEach(inp=>{
     inp.onchange=()=>{
       const id=inp.dataset.id,f=inp.dataset.f,v=parseFloat(inp.value);
       overrides[id]=overrides[id]||{};
       if(isNaN(v)){delete overrides[id][f];}else{overrides[id][f]=v;}
-      localStorage.setItem("cncOverrides",JSON.stringify(overrides));
+      salvaOverrides();
+      render();
+    };
+  });
+  // nome e descrição: texto livre. Guarda como está; vazio volta ao valor de fábrica.
+  tb.querySelectorAll("input.nome,input.descr").forEach(inp=>{
+    inp.onchange=()=>{
+      const id=inp.dataset.id,f=inp.dataset.f,v=inp.value.trim();
+      const base=rows.find(x=>x.id===id);
+      overrides[id]=overrides[id]||{};
+      if(v==="" && !(base&&base.extra)) delete overrides[id][f]; else overrides[id][f]=v;
+      salvaOverrides();
+      render();
+    };
+  });
+  // unidade: entre m/cm/mm converte quantidade e preço para o subtotal não mudar de significado
+  tb.querySelectorAll("input.unid").forEach(inp=>{
+    inp.onchange=()=>{
+      const id=inp.dataset.id, nova=inp.value.trim();
+      const r=rows.find(x=>x.id===id);
+      if(!r||!nova){ render(); return; }
+      overrides[id]=overrides[id]||{};
+      overrides[id].unit=nova;
+      const conv=converteUnidade(r.qtyEff,r.priceEff,r.unitEff,nova);
+      if(conv){ overrides[id].qty=conv.qty; overrides[id].price=conv.price; }
+      salvaOverrides();
+      render();
+    };
+  });
+  tb.querySelectorAll("button.addit").forEach(btn=>{
+    btn.onclick=()=>{
+      const cat=btn.dataset.cat;
+      const id="x"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+      extras[cat]=extras[cat]||[];
+      extras[cat].push({id,item:"",det:"",qty:1,unit:"pç",price:0,store:"",link:""});
+      salvaExtras();
+      render();
+      const novo=document.querySelector(`input.nome[data-id="${id}"]`);
+      if(novo){ novo.focus(); novo.scrollIntoView({block:"center",behavior:"smooth"}); }
+    };
+  });
+  tb.querySelectorAll("button.rmit").forEach(btn=>{
+    btn.onclick=()=>{
+      const id=btn.dataset.id;
+      const r=rows.find(x=>x.id===id);
+      const nome=(r&&r.itemEff)||"este item";
+      if(!confirm(`Remover "${nome}" da lista?`)) return;
+      Object.keys(extras).forEach(c=>{ extras[c]=(extras[c]||[]).filter(e=>e.id!==id); });
+      delete overrides[id]; delete excluded[id];
+      salvaExtras(); salvaOverrides();
+      localStorage.setItem("cncExcluded",JSON.stringify(excluded));
       render();
     };
   });
@@ -397,7 +484,7 @@ function render(){
         if(loja&&loja.trim()) overrides[id].store=loja.trim();
         else { try{ overrides[id].store=new URL(url.trim()).hostname.replace("www.",""); }catch(e){} }
       }
-      localStorage.setItem("cncOverrides",JSON.stringify(overrides));
+      salvaOverrides();
       render();
     };
   });
@@ -417,9 +504,13 @@ function render(){
 }
 
 document.getElementById("resetBtn").onclick=()=>{
-  if(confirm("Descartar preços/quantidades editados e reincluir todos os itens?")){
-    overrides={};excluded={};
-    localStorage.removeItem("cncOverrides");localStorage.removeItem("cncExcluded");
+  const qtdExtras=Object.values(extras).reduce((a,l)=>a+(l?l.length:0),0);
+  const aviso="Isto descarta os preços, quantidades, nomes, descrições, unidades e links que você editou, e reinclui os itens excluídos."
+    + (qtdExtras?`\n\nTambém apaga ${qtdExtras} item(ns) que você acrescentou.`:"")
+    + "\n\nContinuar?";
+  if(confirm(aviso)){
+    overrides={};excluded={};extras={};
+    localStorage.removeItem("cncOverrides");localStorage.removeItem("cncExcluded");localStorage.removeItem("cncExtras");
     render();
   }
 };
@@ -435,11 +526,14 @@ function buildExcelXml(){
 
   const rows=buildBOM();
   rows.forEach(r=>{
-    const o=overrides[r.id]||{};
+    const o=r.lock?{}:(overrides[r.id]||{});
     r.qtyEff=o.qty!==undefined?o.qty:r.qty;
     r.priceEff=o.price!==undefined?o.price:r.price;
+    r.itemEff=o.item!==undefined?o.item:r.item;
+    r.detEff=o.det!==undefined?o.det:(r.det||"");
+    r.unitEff=o.unit!==undefined?o.unit:r.unit;
     r.linkEff=o.link||r.link||""; r.storeEff=o.store||r.store||"";
-    r.off=!!excluded[r.id];
+    r.off=r.lock?false:!!excluded[r.id];
   });
   const cats=[...new Set(rows.map(r=>r.cat))];
   const cfg=document.getElementById("cfgLabel").textContent;
@@ -454,8 +548,8 @@ function buildExcelXml(){
   cats.forEach(cat=>{
     const its=rows.filter(r=>r.cat===cat);
     its.forEach(r=>{
-      push([cS(cat),cS(r.item+(r.est?" (estimativa)":"")), cS(r.det||"","wrap"),
-        cN(r.off?0:1), cN(r.qtyEff), cS(r.unit||""), cN(+r.priceEff.toFixed(2),"cur"),
+      push([cS(cat),cS(r.itemEff+(r.extra?" (acrescentado pelo cliente)":(r.est?" (estimativa)":""))), cS(r.detEff,"wrap"),
+        cN(r.off?0:1), cN(r.qtyEff), cS(r.unitEff||""), cN(+r.priceEff.toFixed(6),"cur"),
         cF("=IF(RC[-4]=1,RC[-3]*RC[-1],0)","cur"), cS(r.storeEff), cL(r.linkEff?"abrir anúncio":"",r.linkEff||null)]);
     });
     push([cS(""),cS("SUBTOTAL — "+cat,"catB"),cS(""),cS(""),cS(""),cS(""),cS("","catB"),
@@ -498,9 +592,9 @@ function buildExcelXml(){
  <Style ss:ID="tit"><Font ss:Bold="1" ss:Size="14"/></Style>
  <Style ss:ID="sub"><Font ss:Color="#666666"/></Style>
  <Style ss:ID="h"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#2F5597" ss:Pattern="Solid"/><Alignment ss:Vertical="Center"/></Style>
- <Style ss:ID="catB"><Font ss:Bold="1"/><Interior ss:Color="#D9E2F3" ss:Pattern="Solid"/><NumberFormat ss:Format="&quot;R$&quot;\\ #,##0.00"/></Style>
- <Style ss:ID="cur"><NumberFormat ss:Format="&quot;R$&quot;\\ #,##0.00"/></Style>
- <Style ss:ID="tot"><Font ss:Bold="1" ss:Size="12"/><Interior ss:Color="#FFE699" ss:Pattern="Solid"/><NumberFormat ss:Format="&quot;R$&quot;\\ #,##0.00"/></Style>
+ <Style ss:ID="catB"><Font ss:Bold="1"/><Interior ss:Color="#D9E2F3" ss:Pattern="Solid"/><NumberFormat ss:Format="&quot;R$&quot;\\ #,##0.00##"/></Style>
+ <Style ss:ID="cur"><NumberFormat ss:Format="&quot;R$&quot;\\ #,##0.00##"/></Style>
+ <Style ss:ID="tot"><Font ss:Bold="1" ss:Size="12"/><Interior ss:Color="#FFE699" ss:Pattern="Solid"/><NumberFormat ss:Format="&quot;R$&quot;\\ #,##0.00##"/></Style>
  <Style ss:ID="wrap"><Alignment ss:WrapText="1" ss:Vertical="Top"/></Style>
 </Styles>
 <Worksheet ss:Name="Custo CNC"><Table>

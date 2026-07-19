@@ -19,7 +19,9 @@
 </div>
 <h1>Monte a sua CNC Router</h1>
 <p class="sub">Escolha o material, o tamanho dos eixos, a transmissão e a motorização. A lista de peças e o custo
-se montam sozinhos. Use a chave verde para tirar um item do total e clique em preço ou quantidade para editar.
+se montam sozinhos. Tudo na tabela é editável: nome, descrição, quantidade, unidade e preço. Use a chave verde
+para tirar um item do total, e o <b>+ item</b> de cada categoria para acrescentar o que faltar.
+Trocar a unidade entre <b>m</b>, <b>cm</b> e <b>mm</b> converte a quantidade e o preço sozinho, mantendo o subtotal.
 <span class="chk">✔ VERIFICADO</span> = preço confirmado na loja em 14/07/2026 · <span class="est">EST</span> = estimativa a confirmar.</p>
 
 <div class="modebar">
@@ -72,6 +74,13 @@ se montam sozinhos. Use a chave verde para tirar um item do total e clique em pr
   <button class="reset accent" id="xlsBtn" title="Baixa a planilha com as fórmulas de quantidade × preço, subtotais e total">Exportar Excel</button>
   <button class="reset" id="resetBtn" title="Descarta preços, quantidades e links editados e reinclui os itens">Restaurar padrão</button>
 </div>
+
+<datalist id="listaUnidades">
+  <option value="pç"></option><option value="kit"></option><option value="cj"></option>
+  <option value="m"></option><option value="cm"></option><option value="mm"></option>
+  <option value="h"></option><option value="vb"></option><option value="lic"></option>
+  <option value="par"></option><option value="barra"></option><option value="jogo"></option>
+</datalist>
 
 <div class="tablewrap">
 <table>

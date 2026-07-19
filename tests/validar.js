@@ -184,11 +184,67 @@ async function testConfigurador(){
   return stats;
 }
 
+function testItensEditaveis(){
+  const context=configuradorContext();
+  return vm.runInContext(`(()=>{
+    Object.assign(state,{mat:"aluminio",trans:"fuso",motor:"closed34",perfil:"p4040r",x:700,y:500,z:400,modo:"montador"});
+
+    // 1) conversão de unidade preserva o subtotal (é o ponto da funcionalidade)
+    const antes=5.8*174;
+    const c=converteUnidade(5.8,174,"m","mm");
+    const conv={qty:c.qty,price:c.price,subtotalIgual:Math.abs(c.qty*c.price-antes)<0.01};
+    const ida=converteUnidade(1,1000,"m","cm");
+    const volta=converteUnidade(ida.qty,ida.price,"cm","m");
+    const roundTrip=(volta.qty===1&&volta.price===1000);
+    const naoConversivel=converteUnidade(2,10,"pç","kit");
+
+    // 2) item acrescentado pelo usuário aparece na categoria escolhida
+    extras["Estrutura"]=[{id:"xteste",item:"Parafuso especial",det:"M8 inox",qty:10,unit:"pç",price:3.5,store:"Loja X",link:"https://exemplo.com/x"}];
+    const comExtra=buildBOM();
+    const ex=comExtra.find(r=>r.id==="xteste");
+
+    // 3) nome, descrição e unidade editados chegam à planilha
+    overrides["perfil"]={item:"Perfil renomeado",det:"descrição trocada",unit:"mm",qty:5800,price:0.174};
+    document.getElementById("cfgLabel").textContent="Teste";
+    const xml=buildExcelXml().xml;
+
+    return {conv,roundTrip,naoConversivel,
+      // preço por mm tem 3 casas: arredondar para 2 faria o total da planilha divergir da tela
+      xmlPrecoCheio:xml.includes(">0.174<"),
+      xmlSemArredondar:!xml.includes(">0.17<"),
+      extraOk:!!ex, extraCat:ex&&ex.cat, extraMarcado:ex&&ex.extra===true,
+      xmlTemExtra:xml.includes("Parafuso especial")&&xml.includes("acrescentado pelo cliente"),
+      xmlTemNome:xml.includes("Perfil renomeado"),
+      xmlTemDesc:xml.includes("descrição trocada"),
+      xmlTemUnidade:xml.includes(">mm<")};
+  })()`,context);
+}
+
 (async()=>{
   testEstrutura();
   await testContato();
   const stats=await testConfigurador();
+  const ed=testItensEditaveis();
+  // conversão: 5,8 m x R$174/m  ->  5800 mm x R$0,174/mm, com o mesmo subtotal
+  assert.equal(ed.conv.qty,5800,"m -> mm deve multiplicar a quantidade por 1000");
+  assert.equal(ed.conv.price,0.174,"m -> mm deve dividir o preço por 1000");
+  assert(ed.conv.subtotalIgual,"a conversão de unidade não pode alterar o subtotal");
+  assert(ed.roundTrip,"converter ida e volta tem que devolver os valores originais");
+  assert.equal(ed.naoConversivel,null,"pç -> kit não é conversível: só troca o rótulo");
+  // itens acrescentados
+  assert(ed.extraOk,"item acrescentado deve entrar na lista");
+  assert.equal(ed.extraCat,"Estrutura","item acrescentado deve ficar na categoria escolhida");
+  assert(ed.extraMarcado,"item acrescentado deve vir marcado como extra");
+  assert(ed.xmlTemExtra,"a planilha deve trazer o item acrescentado, identificado como tal");
+  // edição de nome/descrição/unidade
+  assert(ed.xmlTemNome,"nome editado deve chegar à planilha");
+  assert(ed.xmlTemDesc,"descrição editada deve chegar à planilha");
+  assert(ed.xmlTemUnidade,"unidade editada deve chegar à planilha");
+  // sem isto, R$0,174/mm virava R$0,17/mm e o total da planilha não batia com o da tela
+  assert(ed.xmlPrecoCheio,"a planilha precisa levar o preço com as casas decimais completas");
+  assert(ed.xmlSemArredondar,"preço não pode ser arredondado para 2 casas na planilha");
   console.log("OK — estrutura, sintaxe, fallback com download, Excel e SVG validados.");
   console.log(`OK — ${stats.combinacoes} combinações de BOM; ${stats.desenhos} combinações do desenho 3D.`);
   console.log(`OK — mão de obra: ${stats.baseHoras} h / R$ ${stats.baseValor}; máquina 1500×1000: ${stats.grandeHoras} h.`);
+  console.log(`OK — itens editáveis: 5,8 m → ${ed.conv.qty} mm a R$ ${ed.conv.price}/mm (subtotal preservado); extra e edições na planilha.`);
 })().catch(err=>{console.error(err);process.exitCode=1;});

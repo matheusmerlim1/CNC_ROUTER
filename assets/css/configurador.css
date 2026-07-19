@@ -49,6 +49,24 @@ td.num,.sub-total{font-family:var(--font-mono);font-variant-numeric:tabular-nums
 .qty,.price{width:80px;text-align:right;border:1px dashed var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:4px 6px;font-family:var(--font-mono);font-size:.85rem;font-variant-numeric:tabular-nums}
 .price{width:100px}
 .qty:focus,.price:focus{border-color:var(--accent);outline:none}
+/* nome, descrição e unidade: parecem texto até o cursor chegar, aí se revelam editáveis */
+.nome,.descr,.unid{width:100%;border:1px solid transparent;background:transparent;color:inherit;
+  border-radius:6px;padding:3px 5px;font:inherit;transition:border-color .15s ease,background .15s ease}
+.nome{font-weight:600}
+.descr{color:var(--muted)}
+.unid{width:74px;font-family:var(--font-mono);font-size:.85rem}
+.nome:hover,.descr:hover,.unid:hover{border-color:var(--line);background:var(--bg)}
+.nome:focus,.descr:focus,.unid:focus{border-color:var(--accent);background:var(--bg);outline:none}
+.nome::placeholder,.descr::placeholder{color:var(--muted);opacity:.7}
+/* botões de acrescentar e remover item */
+.catnome{font-weight:700}
+.addit{margin-left:10px;border:1px dashed var(--line);background:transparent;color:var(--accent);cursor:pointer;
+  border-radius:6px;padding:2px 9px;font-family:inherit;font-size:.78rem;font-weight:600;letter-spacing:0;text-transform:none}
+.addit:hover{border-color:var(--accent);border-style:solid}
+.addit:active{transform:translateY(1px)}
+.rmit{margin-left:8px;border:none;background:transparent;color:var(--muted);cursor:pointer;
+  font-family:inherit;font-size:.72rem;text-decoration:underline;padding:2px 4px}
+.rmit:hover{color:var(--danger)}
 .inc{width:38px;height:26px;border-radius:14px;border:1px solid var(--line);cursor:pointer;background:var(--line);
   position:relative;padding:0;transition:background .15s ease,border-color .15s ease}
 .inc:hover{border-color:var(--accent)}
@@ -123,6 +141,11 @@ button.send:disabled{opacity:.6;cursor:default;transform:none}
   td.cel-item::before{display:none}
   td.det[data-label="Detalhe"]{display:block;text-align:left;padding-bottom:8px}
   td.det[data-label="Detalhe"]::before{display:block;margin-bottom:2px}
+  /* no cartão os campos ocupam a linha e ficam com borda visível: sem cursor, não há "descobrir no hover" */
+  .nome,.descr{border-color:var(--line);background:var(--bg);padding:9px 10px;font-size:1rem}
+  .unid{width:100%;max-width:160px;padding:9px 10px;font-size:1rem;border-color:var(--line);background:var(--bg)}
+  .addit{padding:8px 14px;font-size:.85rem}
+  .rmit{padding:10px 6px;font-size:.8rem}
   td.cel-inc{justify-content:flex-start;gap:10px;padding-bottom:8px}
   td.num{justify-content:space-between}
   .qty,.price{width:auto;flex:1;max-width:160px;font-size:1rem}   /* 16px evita o zoom do iOS ao focar */
