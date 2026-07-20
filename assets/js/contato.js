@@ -7,9 +7,12 @@ const CONTATO = {
   WHATSAPP: "5522992074505",              // formato internacional para wa.me (55 + DDD + número)
   WHATSAPP_LABEL: "(22) 99207-4505",
   EMAILJS: {
-    serviceId:  "service_rhvn7od",        // fornecido pelo Matheus
-    templateId: "",                        // TODO: EmailJS → Email Templates → ID (formato template_xxxxxxx)
-    publicKey:  "",                        // TODO: EmailJS → Account → General/API Keys → Public Key
+    serviceId:  "service_rhvn7od",
+    templateId: "template_manvnku",
+    /* A public key é feita para ficar exposta no navegador — é assim que o EmailJS funciona.
+       A proteção é a lista de domínios permitidos (EmailJS → Account → Security):
+       deixe só matheusmerlim1.github.io, senão alguém pode gastar a sua cota a partir de outro site. */
+    publicKey:  "ptYEpYhnkZvv9zBGI",
     /* Anexo desligado: o plano atual do EmailJS não permite, e o base64 da planilha
        (~40 KB) estourava o limite de payload junto com a tabela. A lista vai no corpo
        do e-mail como tabela HTML. Ligue de novo se o plano passar a permitir. */

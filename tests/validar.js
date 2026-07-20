@@ -99,13 +99,19 @@ async function testContato(){
     navigator:{}
   });
   vm.runInContext(read("assets/js/contato.js"),context,{filename:"assets/js/contato.js"});
+
+  // as 3 chaves precisam estar preenchidas, senão o envio direto não acontece
+  const cfg=vm.runInContext("CONTATO.EMAILJS",context);
+  assert(/^service_/.test(cfg.serviceId),"serviceId do EmailJS ausente ou inválido");
+  assert(/^template_/.test(cfg.templateId),"templateId do EmailJS ausente — o envio direto não funciona sem ele");
+  assert(cfg.publicKey&&cfg.publicKey.length>10,"publicKey do EmailJS ausente — o envio direto não funciona sem ela");
+
+  // sem o SDK carregado (como aqui no Node), não envia — e não pode cair no mailto/Outlook
   const result=await vm.runInContext(
     `enviarSolicitacao({assunto:"Teste",corpo:"Corpo",anexo:{nome:"teste.txt",base64:"dGVzdGU=",blob:new Blob(["teste"])}})`,
     context
   );
-  // sem as chaves do EmailJS o envio não acontece — e não pode cair no mailto/Outlook
-  assert.equal(result.via,"sem-config","sem EmailJS o envio precisa avisar, não abrir cliente de e-mail");
-  assert.equal(result.ok,false,"sem EmailJS a solicitação não foi enviada de fato");
+  assert.equal(result.via,"sem-config","sem o SDK do EmailJS o envio precisa avisar, não abrir cliente de e-mail");
   assert.equal(window.location.href,"","enviarSolicitacao não pode navegar a página (era o pulo para o Outlook)");
   // o mailto continua existindo só para o botão E-mail da landing, escolha explícita de quem visita
   const link=vm.runInContext(`mailtoLink("Assunto","Corpo")`,context);
