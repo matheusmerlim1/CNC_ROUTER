@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const crypto = require("node:crypto");
 
 const root = path.resolve(__dirname, "..");
 const read = file => fs.readFileSync(path.join(root, file), "utf8");
@@ -70,8 +71,13 @@ function testEstrutura(){
     assert.equal(new Set(keys).size, keys.length, `${file}: data-rk duplicado`);
     assert(!/<style[\s>]/i.test(html), `${file}: CSS inline em bloco`);
     assert(!/="var\(--/.test(html), `${file}: var() em atributo de apresentação — pinte por classe`);
+    // sem ?v=<hash> o navegador segura o CSS/JS antigo e a atualização "não aparece"
+    for (const m of html.matchAll(/(?:href|src)="(assets\/[^"?]+)(\?v=([^"]*))?"/g)){
+      const esperado=crypto.createHash("sha1").update(fs.readFileSync(path.join(root,m[1]))).digest("hex").slice(0,8);
+      assert.equal(m[3],esperado,`${file}: ${m[1]} sem versão em dia — rode: node tools/versionar.js`);
+    }
     for (const match of html.matchAll(/<(?:script|link)[^>]+(?:src|href)="([^"]+)"/g)){
-      const ref = match[1];
+      const ref = match[1].split("?")[0];        // tira o ?v=<hash> antes de procurar no disco
       if (!/^(?:https?:|mailto:|#)/.test(ref)) assert(fs.existsSync(path.join(root,ref)), `${file}: ativo ausente ${ref}`);
     }
   }
