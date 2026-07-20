@@ -698,6 +698,59 @@ function listaMaterialTexto(){
   return L.join("\n");
 }
 
+/* Mesma lista, porém como tabela HTML para o corpo do e-mail.
+   O anexo da planilha não está disponível no plano do EmailJS, então a lista
+   precisa chegar formatada aqui. Estilos embutidos e layout em <table>: é o que
+   os clientes de e-mail entendem. */
+function listaMaterialHtml(){
+  const rows=buildBOM();
+  rows.forEach(r=>{
+    const o=r.lock?{}:(overrides[r.id]||{});
+    r.qtyEff=o.qty!==undefined?o.qty:r.qty;
+    r.priceEff=o.price!==undefined?o.price:r.price;
+    r.itemEff=o.item!==undefined?o.item:r.item;
+    r.detEff=o.det!==undefined?o.det:(r.det||"");
+    r.unitEff=o.unit!==undefined?o.unit:r.unit;
+    r.linkEff=o.link||r.link||""; r.storeEff=o.store||r.store||"";
+    r.sub=r.qtyEff*r.priceEff;
+  });
+  const esc=s=>String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  const din=v=>"R$ "+v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+  const qtd=v=>v.toLocaleString("pt-BR",{maximumFractionDigits:4});
+  // estilos curtos: cada caractere se repete ~30 vezes e o EmailJS tem limite de payload
+  const c='style="padding:6px 8px;border-bottom:1px solid #eee"';
+  const n='style="padding:6px 8px;border-bottom:1px solid #eee;text-align:right;white-space:nowrap"';
+  const menor='style="color:#667;font-size:11px"';
+
+  let h='<table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;'
+    +'border:1px solid #ddd;font-size:12px;font-family:system-ui,Arial,sans-serif">'
+    +'<tr style="background:#2f5597;color:#fff">'
+    +'<th '+c+' align="left">Item</th><th '+n+'>Qtd</th><th '+c+' align="left">Un</th>'
+    +'<th '+n+'>Preço</th><th '+n+'>Subtotal</th></tr>';
+
+  let total=0;
+  [...new Set(rows.map(r=>r.cat))].forEach(cat=>{
+    const its=rows.filter(r=>r.cat===cat);
+    const sub=its.reduce((a,r)=>a+r.sub,0);
+    total+=sub;
+    h+='<tr style="background:#d9e2f3;font-weight:700"><td colspan="4" '+c+'>'+esc(cat)+'</td>'
+      +'<td '+n+'>'+din(sub)+'</td></tr>';
+    its.forEach(r=>{
+      let extra="";
+      if(r.detEff) extra+='<div '+menor+'>'+esc(r.detEff)+'</div>';
+      if(r.storeEff) extra+='<div '+menor+'>'
+        +(r.linkEff?'<a href="'+esc(r.linkEff)+'" style="color:#1f4fd8">'+esc(r.storeEff)+'</a>':esc(r.storeEff))+'</div>';
+      h+='<tr><td '+c+'>'+esc(r.itemEff)+(r.extra?' <span style="color:#0f7a3d">(acrescentado)</span>':'')+extra+'</td>'
+        +'<td '+n+'>'+qtd(r.qtyEff)+'</td><td '+c+'>'+esc(r.unitEff)+'</td>'
+        +'<td '+n+'>'+din(r.priceEff)+'</td><td '+n+'>'+din(r.sub)+'</td></tr>';
+    });
+  });
+  h+='<tr style="background:#ffe699;font-weight:700;font-size:13px">'
+    +'<td colspan="4" style="padding:9px 8px">TOTAL GERAL</td>'
+    +'<td style="padding:9px 8px;text-align:right;white-space:nowrap">'+din(total)+'</td></tr>';
+  return h+'</table>';
+}
+
 /* Resumo curto, para caber no WhatsApp sem estourar o limite da URL */
 function resumoTexto(){
   const cfg=document.getElementById("cfgLabel").textContent;
@@ -747,7 +800,9 @@ if(enviaBtn) enviaBtn.onclick=async()=>{
   enviaBtn.disabled=true; enviaBtn.textContent="enviando…";
   try{
     const r=await enviarSolicitacao({assunto:"Solicitação CNC Router — "+quem, corpo,
-      params:{nome:quem, email:contato.email||"", telefone:contato.whats||"", configuracao:cfg, total}, anexo});
+      params:{nome:quem, email:contato.email||"", telefone:contato.whats||"", configuracao:cfg, total,
+        tabela:listaMaterialHtml(), montagem:MODOS[state.modo].label, observacao:(contato.obs||"").trim()},
+      anexo});
     if(r.via==="emailjs"){
       alert("Solicitação enviada com a lista completa e a planilha anexada.\nEm breve retornamos. Obrigado!");
       return;

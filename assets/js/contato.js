@@ -9,7 +9,11 @@ const CONTATO = {
   EMAILJS: {
     serviceId:  "service_rhvn7od",        // fornecido pelo Matheus
     templateId: "",                        // TODO: EmailJS → Email Templates → ID (formato template_xxxxxxx)
-    publicKey:  ""                         // TODO: EmailJS → Account → General/API Keys → Public Key
+    publicKey:  "",                        // TODO: EmailJS → Account → General/API Keys → Public Key
+    /* Anexo desligado: o plano atual do EmailJS não permite, e o base64 da planilha
+       (~40 KB) estourava o limite de payload junto com a tabela. A lista vai no corpo
+       do e-mail como tabela HTML. Ligue de novo se o plano passar a permitir. */
+    enviarAnexo: false
   }
 };
 
@@ -72,7 +76,7 @@ async function enviarSolicitacao(opts){
 
   try{
     const p = Object.assign({ assunto, mensagem: corpo, to_email: CONTATO.EMAIL, reply_to: params.email || "" }, params);
-    if (anexo){ p.anexo = anexo.base64; p.anexo_nome = anexo.nome; }
+    if (anexo && CONTATO.EMAILJS.enviarAnexo){ p.anexo = anexo.base64; p.anexo_nome = anexo.nome; }
     await emailjs.send(CONTATO.EMAILJS.serviceId, CONTATO.EMAILJS.templateId, p);
     return { ok:true, via:"emailjs" };
   }catch(e){

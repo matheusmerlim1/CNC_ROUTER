@@ -233,7 +233,19 @@ function testItensEditaveis(){
     delete removidos["ddcs"];
     const voltou=buildBOM().some(r=>r.id==="ddcs");
 
-    return {conv,roundTrip,naoConversivel,remocao,voltou,
+    // a lista vai no corpo como tabela HTML (o plano do EmailJS não permite anexo)
+    const tabela=listaMaterialHtml();
+    const html={
+      tamanhoKB:+(tabela.length/1024).toFixed(1),
+      temTotal:tabela.includes("TOTAL GERAL"),
+      trBalanceado:(tabela.split("<tr").length)===(tabela.split("</tr>").length),
+      tdBalanceado:(tabela.split("<td").length)===(tabela.split("</td>").length),
+      // o item foi renomeado acima: confirma que a edição também chega na tabela do e-mail
+      temItem:tabela.includes("Perfil renomeado"),
+      temUnidade:tabela.includes(">mm<")
+    };
+
+    return {conv,roundTrip,naoConversivel,remocao,voltou,html,
       // preço por mm tem 3 casas: arredondar para 2 faria o total da planilha divergir da tela
       xmlPrecoCheio:xml.includes(">0.174<"),
       xmlSemArredondar:!xml.includes(">0.17<"),
@@ -274,8 +286,15 @@ function testItensEditaveis(){
   assert(ed.remocao.sumiuDaPlanilha,"item removido NÃO pode ir na planilha (era o bug relatado)");
   assert(ed.remocao.sumiuDoTexto,"item removido não pode ir no texto do envio");
   assert(ed.voltou,"desfazer a remoção precisa devolver o item à lista");
+  // tabela HTML no corpo do e-mail
+  assert(ed.html.trBalanceado&&ed.html.tdBalanceado,"HTML da tabela com tags desbalanceadas");
+  assert(ed.html.temTotal,"tabela do e-mail sem o total geral");
+  assert(ed.html.temItem&&ed.html.temUnidade,"a tabela do e-mail deve refletir nome e unidade editados");
+  // o EmailJS recusa payload grande; a tabela é a maior parte dele
+  assert(ed.html.tamanhoKB<32,`tabela do e-mail com ${ed.html.tamanhoKB} KB: perto do limite do EmailJS`);
   console.log("OK — estrutura, sintaxe, fallback com download, Excel e SVG validados.");
   console.log(`OK — ${stats.combinacoes} combinações de BOM; ${stats.desenhos} combinações do desenho 3D.`);
   console.log(`OK — mão de obra: ${stats.baseHoras} h / R$ ${stats.baseValor}; máquina 1500×1000: ${stats.grandeHoras} h.`);
   console.log(`OK — itens editáveis: 5,8 m → ${ed.conv.qty} mm a R$ ${ed.conv.price}/mm (subtotal preservado); extra e edições na planilha.`);
+  console.log(`OK — remoção some da planilha; tabela do e-mail com ${ed.html.tamanhoKB} KB.`);
 })().catch(err=>{console.error(err);process.exitCode=1;});
