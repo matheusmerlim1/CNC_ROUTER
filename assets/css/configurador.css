@@ -42,8 +42,6 @@ th{position:sticky;top:0;background:var(--card);text-align:left;padding:10px 12p
 td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
 tr.cat td{background:var(--cat);font-weight:700;font-size:.85rem;letter-spacing:.03em}
 tr.cat .catsum{float:right;color:var(--accent);font-family:var(--font-mono);font-variant-numeric:tabular-nums}
-tr.off td{opacity:.4}
-tr.off td:first-child{opacity:1}
 td.num, th.num{text-align:right;white-space:nowrap}
 td.num,.sub-total{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
 .qty,.price{width:80px;text-align:right;border:1px dashed var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:4px 6px;font-family:var(--font-mono);font-size:.85rem;font-variant-numeric:tabular-nums}
@@ -64,15 +62,21 @@ td.num,.sub-total{font-family:var(--font-mono);font-variant-numeric:tabular-nums
   border-radius:6px;padding:2px 9px;font-family:inherit;font-size:.78rem;font-weight:600;letter-spacing:0;text-transform:none}
 .addit:hover{border-color:var(--accent);border-style:solid}
 .addit:active{transform:translateY(1px)}
-.rmit{margin-left:8px;border:none;background:transparent;color:var(--muted);cursor:pointer;
-  font-family:inherit;font-size:.72rem;text-decoration:underline;padding:2px 4px}
-.rmit:hover{color:var(--danger)}
-.inc{width:38px;height:26px;border-radius:14px;border:1px solid var(--line);cursor:pointer;background:var(--line);
-  position:relative;padding:0;transition:background .15s ease,border-color .15s ease}
-.inc:hover{border-color:var(--accent)}
-.inc::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:var(--card);transition:transform .15s ease}
-.inc.on{background:var(--ok);border-color:var(--ok)}
-.inc.on::after{transform:translateX(12px)}
+.rmit{border:1px solid transparent;background:transparent;color:var(--muted);cursor:pointer;border-radius:6px;
+  font-family:inherit;font-size:.76rem;padding:4px 8px;transition:color .15s ease,border-color .15s ease}
+.rmit:hover{color:var(--danger);border-color:var(--danger)}
+.rmit:active{transform:translateY(1px)}
+td.cel-acao{text-align:right;white-space:nowrap}
+/* barra de desfazer: a remoção não pede confirmação porque volta num clique */
+.undobar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--warn-soft);color:var(--warn);
+  border:1px solid var(--warn);border-radius:10px;padding:10px 16px;margin-bottom:12px;font-size:.9rem}
+.undobar .undoqtd{color:var(--muted);font-size:.8rem}
+.undobar button{margin-left:auto;border:1px solid var(--warn);background:transparent;color:var(--warn);
+  border-radius:8px;padding:7px 14px;cursor:pointer;font-family:inherit;font-size:.88rem;font-weight:600}
+.undobar button:hover{background:var(--warn);color:var(--card)}
+.undobar button:active{transform:translateY(1px)}
+/* rótulo só para leitor de tela */
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .est{color:var(--warn);font-size:.72rem;font-weight:600;margin-left:4px}
 .lnk{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:.85rem;padding:0 4px}
 .lnk:hover{color:var(--accent)}
@@ -105,17 +109,11 @@ button.send:disabled{opacity:.6;cursor:default;transform:none}
 /* ---------- toque: alvos maiores onde não há mouse ---------- */
 @media (pointer: coarse){
   .opt{padding:11px 16px}
-  .inc{width:46px;height:30px}
-  .inc::after{width:24px;height:24px}
-  .inc.on::after{transform:translateX(16px)}
-  /* estende a área de toque para ~44px sem engordar a chave: o ::before invisível conta no clique */
-  .inc::before{content:"";position:absolute;inset:-8px;border-radius:18px}
   .lnk{padding:8px 10px;font-size:1rem}
 }
 /* efeitos de passar o mouse só onde existe mouse */
 @media (hover: none){
   .opt:hover{border-color:var(--line);background:transparent}
-  .inc:hover{border-color:var(--line)}
   button.reset:hover{color:var(--muted);border-color:var(--line)}
 }
 
@@ -123,7 +121,7 @@ button.send:disabled{opacity:.6;cursor:default;transform:none}
 @media (max-width: 760px){
   body{padding:14px max(14px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
   .totalbar{position:static}                 /* fixa no topo rouba altura demais no celular */
-  .totalbar .send,.totalbar .reset{flex:1;min-width:132px}
+  .totalbar .send,.totalbar .reset{flex:1;min-width:132px;min-height:44px}
   .modebar .note{min-width:0}
   .tablewrap{overflow:visible}
   table{min-width:0;border:0;background:transparent;font-size:.95rem}
@@ -145,10 +143,15 @@ button.send:disabled{opacity:.6;cursor:default;transform:none}
   .nome,.descr{border-color:var(--line);background:var(--bg);padding:9px 10px;font-size:1rem}
   .unid{width:100%;max-width:160px;padding:9px 10px;font-size:1rem;border-color:var(--line);background:var(--bg)}
   .addit{padding:8px 14px;font-size:.85rem}
-  .rmit{padding:10px 6px;font-size:.8rem}
-  td.cel-inc{justify-content:flex-start;gap:10px;padding-bottom:8px}
+  /* no cartão, remover vira ação de largura total no rodapé do item */
+  td.cel-acao{display:block;text-align:left;padding-top:10px}
+  td.cel-acao::before{display:none}
+  .rmit{width:100%;min-height:44px;border-color:var(--line);font-size:.9rem}
+  .undobar{position:sticky;top:8px;z-index:6}
+  .undobar button{width:100%;margin-left:0;min-height:44px}
   td.num{justify-content:space-between}
-  .qty,.price{width:auto;flex:1;max-width:160px;font-size:1rem}   /* 16px evita o zoom do iOS ao focar */
+  /* 16px evita o zoom do iOS ao focar; altura de 44px para caber o dedo */
+  .qty,.price{width:auto;flex:1;max-width:160px;font-size:1rem;min-height:44px;padding:8px 10px}
   .sub-total{font-size:1.05rem}
   /* alvo de 44px: o ✎ media 18px e era impossível de acertar com o dedo */
   .lnk{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;font-size:1.05rem}

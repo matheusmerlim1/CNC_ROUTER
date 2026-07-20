@@ -52,8 +52,18 @@ enviarBtn.onclick=async()=>{
   try{
     const r=await enviarSolicitacao({assunto:"Solicitação de produto — "+(nome||"cliente"),
       corpo, params:{nome, email:dados.cli_email||"", telefone:dados.cli_tel||""}, anexo});
-    if(r.via==="emailjs") alert("Solicitação enviada para "+CONTATO.EMAIL+". Em breve retornamos. Obrigado!");
-    else alert("Baixamos suas respostas e abrimos seu e-mail já preenchido para "+CONTATO.EMAIL+".\nAnexe o arquivo \""+anexo.nome+"\" que baixou e envie.");
+    if(r.via==="emailjs"){
+      alert("Solicitação enviada. Em breve retornamos. Obrigado!");
+      return;
+    }
+    // sem EmailJS não há envio automático: copia tudo e leva ao WhatsApp, sem passar pelo Outlook
+    baixarBlob(blob,anexo.nome);
+    const copiou=await copiarTexto(corpo);
+    const irWhats=confirm(
+      (copiou?"Copiamos suas respostas e baixamos o arquivo.":"Baixamos o arquivo com suas respostas.")+
+      "\n\nQuer enviar agora pelo WhatsApp?");
+    if(irWhats) window.open(waLink(corpo.slice(0,1500)),"_blank","noopener");
+    else if(copiou) alert("Suas respostas estão na área de transferência.\nCole no e-mail para "+CONTATO.EMAIL+".");
   }catch(e){
     console.error(e);
     alert("Não foi possível preparar o envio. Exporte as respostas e envie para "+CONTATO.EMAIL+".");

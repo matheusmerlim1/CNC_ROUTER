@@ -19,8 +19,8 @@
 </div>
 <h1>Monte a sua CNC Router</h1>
 <p class="sub">Escolha o material, o tamanho dos eixos, a transmissão e a motorização. A lista de peças e o custo
-se montam sozinhos. Tudo na tabela é editável: nome, descrição, quantidade, unidade e preço. Use a chave verde
-para tirar um item do total, e o <b>+ item</b> de cada categoria para acrescentar o que faltar.
+se montam sozinhos. Tudo na tabela é editável: nome, descrição, quantidade, unidade e preço. Use o <b>+ item</b>
+de cada categoria para acrescentar o que faltar e o <b>remover</b> para tirar o que não serve — dá para trazer de volta.
 Trocar a unidade entre <b>m</b>, <b>cm</b> e <b>mm</b> converte a quantidade e o preço sozinho, mantendo o subtotal.
 <span class="chk">✔ VERIFICADO</span> = preço confirmado na loja em 14/07/2026 · <span class="est">EST</span> = estimativa a confirmar.</p>
 
@@ -82,13 +82,18 @@ Trocar a unidade entre <b>m</b>, <b>cm</b> e <b>mm</b> converte a quantidade e o
   <option value="par"></option><option value="barra"></option><option value="jogo"></option>
 </datalist>
 
+<div class="undobar" id="undoBar" hidden>
+  <span>Removido: <b id="undoNome"></b><span class="undoqtd" id="undoQtd"></span></span>
+  <button id="undoBtn">Trazer de volta</button>
+</div>
+
 <div class="tablewrap">
 <table>
   <thead><tr>
-    <th title="Incluir no total">Incluir</th>
-    <th style="width:30%">Item</th><th>Detalhe / uso</th>
+    <th style="width:28%">Item</th><th>Detalhe / uso</th>
     <th class="num">Qtd</th><th>Unid</th>
     <th class="num">Preço unit. (R$)</th><th class="num">Subtotal</th><th>Loja / link do produto</th>
+    <th><span class="sr">Ação</span></th>
   </tr></thead>
   <tbody id="bom"></tbody>
 </table>

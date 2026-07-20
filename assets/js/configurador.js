@@ -20,7 +20,22 @@ const KITZ_LINK="https://www.mercadolivre.com.br/kit-eixo-z-apoiado-20mm-x-500mm
 // Mão de obra: base 60 h para a máquina de referência 700×500; escala proporcional ao (X+Y)
 const MO_HORAS_BASE=60, MO_REF=1200, MO_RS_H=70;
 let overrides = JSON.parse(localStorage.getItem("cncOverrides")||"{}");
-let excluded  = JSON.parse(localStorage.getItem("cncExcluded")||"{}");
+/* Itens de fábrica removidos da lista. Removido some de tudo: da tela, da planilha e do envio.
+   (Antes isto era um liga/desliga que zerava o subtotal mas deixava a linha na planilha.) */
+let removidos = JSON.parse(localStorage.getItem("cncRemovidos")||"{}");
+// migra quem já tinha itens desligados no modelo antigo: desligado valia "fora da minha lista"
+try{
+  const antigo=JSON.parse(localStorage.getItem("cncExcluded")||"{}");
+  if(Object.keys(antigo).length){
+    Object.keys(antigo).forEach(id=>{ if(antigo[id]) removidos[id]=true; });
+    localStorage.setItem("cncRemovidos",JSON.stringify(removidos));
+    localStorage.removeItem("cncExcluded");
+  }
+}catch(e){ /* estado antigo ilegível: começa limpo */ }
+const salvaRemovidos = () => localStorage.setItem("cncRemovidos",JSON.stringify(removidos));
+/* Pilha de desfazer: cada remoção empilha o necessário para trazer o item de volta. */
+let desfazer = JSON.parse(localStorage.getItem("cncDesfazer")||"[]");
+const salvaDesfazer = () => localStorage.setItem("cncDesfazer",JSON.stringify(desfazer.slice(-30)));
 /* Itens acrescentados pelo usuário, por categoria: {categoria:[{id,item,det,qty,unit,price,store,link}]}.
    As edições deles passam pelo mesmo `overrides` dos itens de fábrica — aqui fica só o registro de criação. */
 let extras = JSON.parse(localStorage.getItem("cncExtras")||"{}");
@@ -192,7 +207,8 @@ function buildBOM(){
         store:e.store||"",link:e.link||"",extra:true});
     });
   });
-  return rows;
+  // item removido sai da lista de vez: não vai para a tela, nem para a planilha, nem para o envio
+  return rows.filter(r=>!removidos[r.id]);
 }
 
 /* ---------- desenho isométrico da máquina ----------
@@ -304,6 +320,36 @@ function mkOpts(el,defs,key,onSel){
 
 function persist(){localStorage.setItem("cncCfg",JSON.stringify(state));}
 
+/* Desfazer: devolve o último item removido. A pilha guarda vários, então dá para
+   voltar removendo por removendo, na ordem inversa. */
+function pintaDesfazer(){
+  const barra=document.getElementById("undoBar");
+  if(!barra) return;
+  const ultimo=desfazer[desfazer.length-1];
+  if(!ultimo){ barra.hidden=true; return; }
+  barra.hidden=false;
+  document.getElementById("undoNome").textContent=ultimo.nome;
+  document.getElementById("undoQtd").textContent =
+    desfazer.length>1 ? ` (${desfazer.length} removidos)` : "";
+}
+function desfazerRemocao(){
+  const u=desfazer.pop();
+  if(!u) return;
+  if(u.tipo==="extra"){
+    if(u.dados){
+      extras[u.cat]=extras[u.cat]||[];
+      extras[u.cat].push(u.dados);
+      if(u.over) overrides[u.id]=u.over;
+      salvaExtras(); salvaOverrides();
+    }
+  }else{
+    delete removidos[u.id];
+    salvaRemovidos();
+  }
+  salvaDesfazer();
+  render();
+}
+
 function render(){
   const perfilRecomendado = () => {
     if(state.mat==="madeira") return state.x>=1500 ? "p4040r" : "p4040b";
@@ -360,7 +406,7 @@ function render(){
   tb.innerHTML="";
   let total=0, catTotals={}, cats=[];
   rows.forEach(r=>{
-    // item travado ignora edições e exclusões (inclusive as deixadas pelo outro modo)
+    // item travado ignora edições (inclusive as deixadas pelo outro modo)
     const o = r.lock ? {} : (overrides[r.id]||{});
     r.qtyEff = o.qty!==undefined?o.qty:r.qty;
     r.priceEff = o.price!==undefined?o.price:r.price;
@@ -370,8 +416,7 @@ function render(){
     r.linkEff = o.link||r.link;
     r.storeEff = o.store||r.store;
     r.customLink = !!o.link;
-    r.off = r.lock ? false : !!excluded[r.id];
-    r.sub = r.off?0:r.qtyEff*r.priceEff;
+    r.sub = r.qtyEff*r.priceEff;
     total+=r.sub;
     if(!catTotals[r.cat]){catTotals[r.cat]=0;cats.push(r.cat);}
     catTotals[r.cat]+=r.sub;
@@ -384,31 +429,29 @@ function render(){
     tb.appendChild(trc);
     rows.filter(r=>r.cat===cat).forEach(r=>{
       const tr=document.createElement("tr");
-      if(r.off) tr.className="off";
       const badge=r.chk?'<span class="chk">✔ VERIFICADO</span>':(r.est?'<span class="est">EST</span>':'');
       // data-label alimenta o layout de cartão no celular, onde a tabela vira lista
       tr.innerHTML= r.lock
-        ? `<td class="cel-inc" data-label="Incluir"><span class="fixo" title="Item fixo do orçamento">•</span></td>`+
-          `<td class="cel-item" data-label="Item">${escAttr(r.itemEff)}</td>`+
+        ? `<td class="cel-item" data-label="Item">${escAttr(r.itemEff)}</td>`+
           `<td class="det" data-label="Detalhe">${escAttr(r.detEff)}</td>`+
           `<td class="num" data-label="Qtd">${r.qtyEff}</td>`+
           `<td data-label="Unid">${escAttr(r.unitEff)}</td>`+
           `<td class="num" data-label="Preço unit.">${fmt(r.priceEff)}</td>`+
           `<td class="num sub-total" data-label="Subtotal">${fmt(r.sub)}</td>`+
-          `<td class="det" data-label="Loja">${r.storeEff||""}</td>`
-        : `<td class="cel-inc" data-label="Incluir"><button class="inc${r.off?"":" on"}" data-id="${r.id}" aria-pressed="${r.off?"false":"true"}" title="${r.off?"Item excluído — clique para incluir":"Item incluído — clique para excluir"}"></button></td>`+
-          `<td class="cel-item" data-label="Item">`+
-            `<input class="nome" data-id="${r.id}" data-f="item" value="${escAttr(r.itemEff)}" placeholder="nome do item" aria-label="Nome do item"${r.off?" disabled":""}>`+
+          `<td class="det" data-label="Loja">${r.storeEff||""}</td>`+
+          `<td class="cel-acao"><span class="fixo" title="Item fixo do orçamento">•</span></td>`
+        : `<td class="cel-item" data-label="Item">`+
+            `<input class="nome" data-id="${r.id}" data-f="item" value="${escAttr(r.itemEff)}" placeholder="nome do item" aria-label="Nome do item">`+
             badge+
-            (r.extra?`<button class="rmit" data-id="${r.id}" title="Remover este item que você acrescentou">remover</button>`:"")+
           `</td>`+
-          `<td class="det" data-label="Detalhe"><input class="descr" data-id="${r.id}" data-f="det" value="${escAttr(r.detEff)}" placeholder="descrição (opcional)" aria-label="Descrição"${r.off?" disabled":""}></td>`+
-          `<td class="num" data-label="Qtd"><input class="qty" data-id="${r.id}" data-f="qty" type="number" min="0" step="any" value="${r.qtyEff}"${r.off?" disabled":""} aria-label="Quantidade"></td>`+
-          `<td data-label="Unid"><input class="unid" data-id="${r.id}" data-f="unit" list="listaUnidades" value="${escAttr(r.unitEff)}" aria-label="Unidade"${r.off?" disabled":""}></td>`+
-          `<td class="num" data-label="Preço unit."><input class="price" data-id="${r.id}" data-f="price" type="number" min="0" step="any" value="${+r.priceEff.toFixed(6)}"${r.off?" disabled":""} aria-label="Preço unitário"></td>`+
-          `<td class="num sub-total" data-label="Subtotal">${r.off?"—":fmt(r.sub)}</td>`+
+          `<td class="det" data-label="Detalhe"><input class="descr" data-id="${r.id}" data-f="det" value="${escAttr(r.detEff)}" placeholder="descrição (opcional)" aria-label="Descrição"></td>`+
+          `<td class="num" data-label="Qtd"><input class="qty" data-id="${r.id}" data-f="qty" type="number" min="0" step="any" value="${r.qtyEff}" aria-label="Quantidade"></td>`+
+          `<td data-label="Unid"><input class="unid" data-id="${r.id}" data-f="unit" list="listaUnidades" value="${escAttr(r.unitEff)}" aria-label="Unidade"></td>`+
+          `<td class="num" data-label="Preço unit."><input class="price" data-id="${r.id}" data-f="price" type="number" min="0" step="any" value="${+r.priceEff.toFixed(6)}" aria-label="Preço unitário"></td>`+
+          `<td class="num sub-total" data-label="Subtotal">${fmt(r.sub)}</td>`+
           `<td class="det" data-label="Loja">${r.linkEff?`<a href="${r.linkEff}" target="_blank" rel="noopener">${r.storeEff}</a>`:(r.storeEff||"")}`+
-          `<button class="lnk${r.customLink?" custom":""}" data-id="${r.id}" aria-label="Trocar o link da loja" title="${r.customLink?"Link personalizado — clique para alterar":"Achou em outro site? Clique para colar o link novo"}">✎</button></td>`;
+            `<button class="lnk${r.customLink?" custom":""}" data-id="${r.id}" aria-label="Trocar o link da loja" title="${r.customLink?"Link personalizado — clique para alterar":"Achou em outro site? Clique para colar o link novo"}">✎</button></td>`+
+          `<td class="cel-acao"><button class="rmit" data-id="${r.id}" aria-label="Remover ${escAttr(r.itemEff)}" title="Remover este item da lista">remover</button></td>`;
       tb.appendChild(tr);
     });
   });
@@ -458,16 +501,28 @@ function render(){
       if(novo){ novo.focus(); novo.scrollIntoView({block:"center",behavior:"smooth"}); }
     };
   });
+  // remover não pede confirmação: o desfazer torna a ação reversível num clique
   tb.querySelectorAll("button.rmit").forEach(btn=>{
     btn.onclick=()=>{
       const id=btn.dataset.id;
       const r=rows.find(x=>x.id===id);
-      const nome=(r&&r.itemEff)||"este item";
-      if(!confirm(`Remover "${nome}" da lista?`)) return;
-      Object.keys(extras).forEach(c=>{ extras[c]=(extras[c]||[]).filter(e=>e.id!==id); });
-      delete overrides[id]; delete excluded[id];
-      salvaExtras(); salvaOverrides();
-      localStorage.setItem("cncExcluded",JSON.stringify(excluded));
+      if(!r) return;
+      if(r.extra){
+        // acrescentado: guarda o registro inteiro, senão não há como recriar
+        let guardado=null, cat=null;
+        Object.keys(extras).forEach(c=>{
+          const achou=(extras[c]||[]).find(e=>e.id===id);
+          if(achou){ guardado=achou; cat=c; }
+          extras[c]=(extras[c]||[]).filter(e=>e.id!==id);
+        });
+        desfazer.push({tipo:"extra",id,cat,dados:guardado,over:overrides[id]||null,nome:r.itemEff||"item"});
+        salvaExtras();
+      }else{
+        removidos[id]=true;
+        desfazer.push({tipo:"fabrica",id,nome:r.itemEff||"item"});
+        salvaRemovidos();
+      }
+      salvaDesfazer();
       render();
     };
   });
@@ -488,14 +543,7 @@ function render(){
       render();
     };
   });
-  tb.querySelectorAll("button.inc").forEach(btn=>{
-    btn.onclick=()=>{
-      const id=btn.dataset.id;
-      if(excluded[id]) delete excluded[id]; else excluded[id]=true;
-      localStorage.setItem("cncExcluded",JSON.stringify(excluded));
-      render();
-    };
-  });
+  pintaDesfazer();
   document.getElementById("grandTotal").textContent=fmt(total);
   document.getElementById("cfgLabel").textContent=
     `${state.mat==="aluminio"?"Alumínio":"Madeira"} · X ${(state.x/1000).toLocaleString("pt-BR")} m × Y ${(state.y/1000).toLocaleString("pt-BR")} m × Z ${state.z} mm · ${transDefs.find(t=>t[0]===state.trans)[1]} · ${MOTORS[state.motor].label} · Perfil ${PERFIS[state.perfil].label}`;
@@ -503,14 +551,19 @@ function render(){
   window.__cncTotal = total;
 }
 
+const undoBtn=document.getElementById("undoBtn");
+if(undoBtn) undoBtn.onclick=desfazerRemocao;
+
 document.getElementById("resetBtn").onclick=()=>{
   const qtdExtras=Object.values(extras).reduce((a,l)=>a+(l?l.length:0),0);
-  const aviso="Isto descarta os preços, quantidades, nomes, descrições, unidades e links que você editou, e reinclui os itens excluídos."
-    + (qtdExtras?`\n\nTambém apaga ${qtdExtras} item(ns) que você acrescentou.`:"")
+  const qtdRemovidos=Object.keys(removidos).length;
+  const aviso="Isto descarta os preços, quantidades, nomes, descrições, unidades e links que você editou."
+    + (qtdRemovidos?`\n\nTraz de volta ${qtdRemovidos} item(ns) removido(s).`:"")
+    + (qtdExtras?`\n\nApaga ${qtdExtras} item(ns) que você acrescentou.`:"")
     + "\n\nContinuar?";
   if(confirm(aviso)){
-    overrides={};excluded={};extras={};
-    localStorage.removeItem("cncOverrides");localStorage.removeItem("cncExcluded");localStorage.removeItem("cncExtras");
+    overrides={};removidos={};extras={};desfazer=[];
+    ["cncOverrides","cncRemovidos","cncExtras","cncDesfazer","cncExcluded"].forEach(k=>localStorage.removeItem(k));
     render();
   }
 };
@@ -533,7 +586,6 @@ function buildExcelXml(){
     r.detEff=o.det!==undefined?o.det:(r.det||"");
     r.unitEff=o.unit!==undefined?o.unit:r.unit;
     r.linkEff=o.link||r.link||""; r.storeEff=o.store||r.store||"";
-    r.off=r.lock?false:!!excluded[r.id];
   });
   const cats=[...new Set(rows.map(r=>r.cat))];
   const cfg=document.getElementById("cfgLabel").textContent;
@@ -549,7 +601,7 @@ function buildExcelXml(){
     const its=rows.filter(r=>r.cat===cat);
     its.forEach(r=>{
       push([cS(cat),cS(r.itemEff+(r.extra?" (acrescentado pelo cliente)":(r.est?" (estimativa)":""))), cS(r.detEff,"wrap"),
-        cN(r.off?0:1), cN(r.qtyEff), cS(r.unitEff||""), cN(+r.priceEff.toFixed(6),"cur"),
+        cN(1), cN(r.qtyEff), cS(r.unitEff||""), cN(+r.priceEff.toFixed(6),"cur"),
         cF("=IF(RC[-4]=1,RC[-3]*RC[-1],0)","cur"), cS(r.storeEff), cL(r.linkEff?"abrir anúncio":"",r.linkEff||null)]);
     });
     push([cS(""),cS("SUBTOTAL — "+cat,"catB"),cS(""),cS(""),cS(""),cS(""),cS("","catB"),
@@ -610,6 +662,52 @@ function buildExcelXml(){
   return { xml, nome };
 }
 function excelBlob(){ const {xml}=buildExcelXml(); return new Blob(["﻿"+xml],{type:"application/vnd.ms-excel"}); }
+
+/* Lista de material completa em texto: vai no corpo da mensagem, para a solicitação
+   ser legível sem precisar abrir a planilha. */
+function listaMaterialTexto(){
+  const rows=buildBOM();
+  rows.forEach(r=>{
+    const o=r.lock?{}:(overrides[r.id]||{});
+    r.qtyEff=o.qty!==undefined?o.qty:r.qty;
+    r.priceEff=o.price!==undefined?o.price:r.price;
+    r.itemEff=o.item!==undefined?o.item:r.item;
+    r.unitEff=o.unit!==undefined?o.unit:r.unit;
+    r.storeEff=o.store||r.store||"";
+    r.sub=r.qtyEff*r.priceEff;
+  });
+  const num=v=>v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+  const cats=[...new Set(rows.map(r=>r.cat))];
+  const L=[];
+  let total=0;
+  cats.forEach(cat=>{
+    const its=rows.filter(r=>r.cat===cat);
+    const sub=its.reduce((a,r)=>a+r.sub,0);
+    total+=sub;
+    L.push("");
+    L.push(cat.toUpperCase()+" — R$ "+num(sub));
+    its.forEach(r=>{
+      const qtd=r.qtyEff.toLocaleString("pt-BR",{maximumFractionDigits:4});
+      L.push("  - "+r.itemEff+(r.extra?" (acrescentado)":"")
+        +": "+qtd+" "+r.unitEff+" x R$ "+num(r.priceEff)+" = R$ "+num(r.sub)
+        +(r.storeEff?("  ["+r.storeEff+"]"):""));
+    });
+  });
+  L.push("");
+  L.push("TOTAL GERAL: R$ "+num(total));
+  return L.join("\n");
+}
+
+/* Resumo curto, para caber no WhatsApp sem estourar o limite da URL */
+function resumoTexto(){
+  const cfg=document.getElementById("cfgLabel").textContent;
+  return "Solicitação de CNC Router\n\n"+contatoTexto().join("\n")
+    +"\n\nConfiguração: "+cfg
+    +"\nMontagem: "+MODOS[state.modo].label
+    +"\nTotal estimado: "+fmt(window.__cncTotal||0)
+    +"\n\n(a planilha com a lista completa de "+buildBOM().length+" itens foi baixada no meu aparelho)";
+}
+
 function exportExcel(){ const {nome}=buildExcelXml(); baixarBlob(excelBlob(), nome); }
 document.getElementById("xlsBtn").onclick=exportExcel;
 
@@ -636,23 +734,36 @@ if(enviaBtn) enviaBtn.onclick=async()=>{
   const blob=excelBlob();
   const cfg=document.getElementById("cfgLabel").textContent;
   const total=fmt(window.__cncTotal||0);
+  // a mensagem leva a lista de material inteira, para ser lida sem abrir a planilha
   const corpo=
     "Nova solicitação de CNC Router\n\n"+
     contatoTexto().join("\n")+"\n\n"+
     "Configuração: "+cfg+"\n"+
     "Montagem: "+MODOS[state.modo].label+"\n"+
     "Custo estimado no configurador: "+total+"\n\n"+
-    "Segue em anexo a planilha com a lista de componentes e os cálculos.";
+    "LISTA DE MATERIAL\n"+listaMaterialTexto()+"\n\n"+
+    "(a planilha com as fórmulas segue em anexo)";
   const anexo={ nome, base64: await b64FromBlob(blob), blob };
   enviaBtn.disabled=true; enviaBtn.textContent="enviando…";
   try{
     const r=await enviarSolicitacao({assunto:"Solicitação CNC Router — "+quem, corpo,
       params:{nome:quem, email:contato.email||"", telefone:contato.whats||"", configuracao:cfg, total}, anexo});
-    if(r.via==="emailjs") alert("Solicitação enviada com a planilha anexada. Em breve retornamos. Obrigado!");
-    else alert("Baixamos a planilha e abrimos seu e-mail já preenchido para "+CONTATO.EMAIL+".\nAnexe o arquivo \""+nome+"\" que acabou de baixar e envie.");
+    if(r.via==="emailjs"){
+      alert("Solicitação enviada com a lista completa e a planilha anexada.\nEm breve retornamos. Obrigado!");
+      return;
+    }
+    // Sem EmailJS não existe envio automático numa página sem servidor.
+    // Em vez de jogar no Outlook: baixa a planilha, copia tudo e leva ao WhatsApp.
+    baixarBlob(blob,nome);
+    const copiou=await copiarTexto(corpo);
+    const irWhats=confirm(
+      (copiou?"Copiamos a solicitação inteira e baixamos a planilha.":"Baixamos a planilha.")+
+      "\n\nQuer enviar agora pelo WhatsApp? (o resumo já vai preenchido; é só anexar a planilha na conversa)");
+    if(irWhats) window.open(waLink(resumoTexto()),"_blank","noopener");
+    else if(copiou) alert("Tudo certo: a solicitação está na área de transferência.\nCole no e-mail para "+CONTATO.EMAIL+" e anexe a planilha baixada.");
   }catch(e){
     console.error(e);
-    alert("Não foi possível preparar o envio. Exporte a planilha e envie para "+CONTATO.EMAIL+".");
+    alert("Não foi possível preparar o envio. Use o botão \"Exportar Excel\" e mande para "+CONTATO.EMAIL+".");
   }finally{
     enviaBtn.disabled=false; enviaBtn.textContent="Enviar solicitação";
   }

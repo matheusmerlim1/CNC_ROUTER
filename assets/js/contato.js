@@ -30,7 +30,24 @@ function mailtoLink(assunto, corpo){
   return "mailto:" + CONTATO.EMAIL + "?subject=" + encodeURIComponent(assunto) + "&body=" + encodeURIComponent(corpo);
 }
 
-/* Gatilho de download de um Blob (usado no fallback para o cliente anexar manualmente) */
+/* Copia texto. O clipboard novo exige contexto seguro (https), então cai no método
+   antigo quando a página abre por file:// */
+async function copiarTexto(txt){
+  try{
+    if (navigator.clipboard && window.isSecureContext){ await navigator.clipboard.writeText(txt); return true; }
+  }catch(e){ /* tenta o método antigo */ }
+  try{
+    const ta = document.createElement("textarea");
+    ta.value = txt; ta.setAttribute("readonly","");
+    ta.style.cssText = "position:fixed;top:-1000px;opacity:0";
+    document.body.appendChild(ta); ta.select();
+    const ok = document.execCommand("copy");
+    ta.remove();
+    return ok;
+  }catch(e){ return false; }
+}
+
+/* Gatilho de download de um Blob (usado para o cliente anexar manualmente) */
 function baixarBlob(blob, nome){
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
@@ -40,30 +57,28 @@ function baixarBlob(blob, nome){
 }
 
 /* Envia uma solicitação.
-   opts: { assunto, corpo, params={}, anexo=null, aoFinalizar=null }
-   anexo (opcional): { nome, base64 }  base64 SEM o prefixo "data:...;base64,"
-   Retorna { ok, via }  — via: "emailjs" | "mailto"
-*/
+   opts: { assunto, corpo, params={}, anexo={nome,base64,blob} }
+   Retorna { ok, via, erro }:
+     via "emailjs"    -> enviado de verdade, sem sair da página
+     via "sem-config" -> EmailJS não configurado; quem chamou resolve (WhatsApp/cópia)
+     via "falhou"     -> EmailJS configurado mas recusou o envio
+
+   Não abre `mailto`: isso jogava o cliente no Outlook, que muitas vezes nem está
+   configurado, e a solicitação morria ali. O envio de verdade depende do EmailJS. */
 async function enviarSolicitacao(opts){
   const { assunto, corpo, params = {}, anexo = null } = opts;
 
-  if (emailjsPronto()){
-    try{
-      const p = Object.assign({ assunto, mensagem: corpo, to_email: CONTATO.EMAIL, reply_to: params.email || "" }, params);
-      if (anexo){ p.anexo = anexo.base64; p.anexo_nome = anexo.nome; }
-      await emailjs.send(CONTATO.EMAILJS.serviceId, CONTATO.EMAILJS.templateId, p);
-      return { ok:true, via:"emailjs" };
-    }catch(e){
-      console.warn("EmailJS falhou — usando fallback mailto.", e);
-    }
-  }
+  if (!emailjsPronto()) return { ok:false, via:"sem-config" };
 
-  // Fallback: abre o e-mail do cliente já preenchido (o anexo o cliente anexa manualmente,
-  // pois a página estática não consegue anexar sozinha sem EmailJS configurado).
-  if (anexo && anexo.blob) baixarBlob(anexo.blob, anexo.nome);
-  const corpoFinal = corpo + (anexo ? ("\n\n[Anexe o arquivo que baixou junto: " + anexo.nome + "]") : "");
-  window.location.href = mailtoLink(assunto, corpoFinal);
-  return { ok:true, via:"mailto" };
+  try{
+    const p = Object.assign({ assunto, mensagem: corpo, to_email: CONTATO.EMAIL, reply_to: params.email || "" }, params);
+    if (anexo){ p.anexo = anexo.base64; p.anexo_nome = anexo.nome; }
+    await emailjs.send(CONTATO.EMAILJS.serviceId, CONTATO.EMAILJS.templateId, p);
+    return { ok:true, via:"emailjs" };
+  }catch(e){
+    console.warn("EmailJS recusou o envio.", e);
+    return { ok:false, via:"falhou", erro:e };
+  }
 }
 
 /* ---------- tema claro/escuro (botão #temaBtn no cabeçalho) ---------- */

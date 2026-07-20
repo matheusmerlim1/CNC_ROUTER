@@ -80,9 +80,7 @@ function testEstrutura(){
 }
 
 async function testContato(){
-  let downloads=0;
   const anchor=fakeElement();
-  anchor.click=()=>downloads++;
   const storage=new Map();
   const document={
     readyState:"loading",documentElement:{getAttribute(){return null;},setAttribute(){}},
@@ -91,16 +89,21 @@ async function testContato(){
   const window={document,location:{href:""},matchMedia:()=>({matches:false})};
   const context=vm.createContext({
     document,window,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},
-    URL:{createObjectURL:()=>"blob:test",revokeObjectURL(){}},Blob,console,setTimeout:fn=>{fn();return 1;},clearTimeout
+    URL:{createObjectURL:()=>"blob:test",revokeObjectURL(){}},Blob,console,setTimeout:fn=>{fn();return 1;},clearTimeout,
+    navigator:{}
   });
   vm.runInContext(read("assets/js/contato.js"),context,{filename:"assets/js/contato.js"});
   const result=await vm.runInContext(
     `enviarSolicitacao({assunto:"Teste",corpo:"Corpo",anexo:{nome:"teste.txt",base64:"dGVzdGU=",blob:new Blob(["teste"])}})`,
     context
   );
-  assert.equal(result.via,"mailto");
-  assert.equal(downloads,1,"fallback deve baixar exatamente um anexo");
-  assert(window.location.href.startsWith("mailto:matheusmerlim@gmail.com"));
+  // sem as chaves do EmailJS o envio não acontece — e não pode cair no mailto/Outlook
+  assert.equal(result.via,"sem-config","sem EmailJS o envio precisa avisar, não abrir cliente de e-mail");
+  assert.equal(result.ok,false,"sem EmailJS a solicitação não foi enviada de fato");
+  assert.equal(window.location.href,"","enviarSolicitacao não pode navegar a página (era o pulo para o Outlook)");
+  // o mailto continua existindo só para o botão E-mail da landing, escolha explícita de quem visita
+  const link=vm.runInContext(`mailtoLink("Assunto","Corpo")`,context);
+  assert(link.startsWith("mailto:matheusmerlim@gmail.com"),"mailtoLink segue disponível para a landing");
 }
 
 async function testConfigurador(){
@@ -208,7 +211,23 @@ function testItensEditaveis(){
     document.getElementById("cfgLabel").textContent="Teste";
     const xml=buildExcelXml().xml;
 
-    return {conv,roundTrip,naoConversivel,
+    // item removido tem que sumir de tudo: da lista, da planilha e do texto do envio.
+    // (antes o liga/desliga só zerava o subtotal e a linha continuava indo na planilha)
+    const totalAntes=buildBOM().length;
+    removidos["ddcs"]=true;
+    const semItem=buildBOM();
+    const xmlSem=buildExcelXml().xml;
+    const textoSem=listaMaterialTexto();
+    const remocao={
+      sumiuDaLista:!semItem.some(r=>r.id==="ddcs"),
+      contagem:totalAntes-semItem.length,
+      sumiuDaPlanilha:!xmlSem.includes("DDCS Expert"),
+      sumiuDoTexto:!textoSem.includes("DDCS Expert")
+    };
+    delete removidos["ddcs"];
+    const voltou=buildBOM().some(r=>r.id==="ddcs");
+
+    return {conv,roundTrip,naoConversivel,remocao,voltou,
       // preço por mm tem 3 casas: arredondar para 2 faria o total da planilha divergir da tela
       xmlPrecoCheio:xml.includes(">0.174<"),
       xmlSemArredondar:!xml.includes(">0.17<"),
@@ -243,6 +262,12 @@ function testItensEditaveis(){
   // sem isto, R$0,174/mm virava R$0,17/mm e o total da planilha não batia com o da tela
   assert(ed.xmlPrecoCheio,"a planilha precisa levar o preço com as casas decimais completas");
   assert(ed.xmlSemArredondar,"preço não pode ser arredondado para 2 casas na planilha");
+  // remoção: o item tem que sumir de tudo, não só zerar o subtotal
+  assert(ed.remocao.sumiuDaLista,"item removido não pode continuar na lista");
+  assert.equal(ed.remocao.contagem,1,"remover deve tirar exatamente uma linha");
+  assert(ed.remocao.sumiuDaPlanilha,"item removido NÃO pode ir na planilha (era o bug relatado)");
+  assert(ed.remocao.sumiuDoTexto,"item removido não pode ir no texto do envio");
+  assert(ed.voltou,"desfazer a remoção precisa devolver o item à lista");
   console.log("OK — estrutura, sintaxe, fallback com download, Excel e SVG validados.");
   console.log(`OK — ${stats.combinacoes} combinações de BOM; ${stats.desenhos} combinações do desenho 3D.`);
   console.log(`OK — mão de obra: ${stats.baseHoras} h / R$ ${stats.baseValor}; máquina 1500×1000: ${stats.grandeHoras} h.`);
