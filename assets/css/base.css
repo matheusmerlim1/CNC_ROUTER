@@ -1,6 +1,10 @@
 /* base.css — sistema de design compartilhado (identidade "usinagem / alumínio anodizado")
    Tokens + tipografia IBM Plex + primitivas. Fontes vêm por <link> no <head> de cada página. */
 
+/* [hidden] vence qualquer display: sem isto, .undobar{display:flex} mostrava a faixa
+   "Removido:" vazia para quem nunca removeu nada */
+[hidden]{display:none !important}
+
 :root{
   /* neutros grafite com viés azul-frio (escolhidos, não cinza puro) */
   --bg:#eceff3; --panel:#f6f8fb; --card:#ffffff;
