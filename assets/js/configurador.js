@@ -294,7 +294,8 @@ function draw3D(){
   build();                                                  // 2ª passada: desenha ajustado
 
   document.getElementById("viz").innerHTML=
-    `<svg class="maquina" viewBox="0 0 ${VIZ_W} ${VIZ_H}" xmlns="http://www.w3.org/2000/svg">`+
+    `<svg class="maquina" viewBox="0 0 ${VIZ_W} ${VIZ_H}" xmlns="http://www.w3.org/2000/svg" role="img" `+
+    `aria-label="Desenho isométrico da máquina configurada: mesa ${fx(X)} × ${fx(Y)} m, pórtico móvel no X, curso Z ${Zc} mm">`+
     `<defs>${mk(CX)}${mk(CY)}${mk(CZ)}</defs>`+
     `<g class="corpo" stroke-width="1" stroke-linejoin="round">${out.join("")}</g>${ar}`+
     `<text x="${VIZ_W/2}" y="${VIZ_H-6}" fill="currentColor" opacity=".55" font-size="13" text-anchor="middle">Mesa ${fx(X)} × ${fx(Y)} m · pórtico móvel no X · curso Z ${Zc} mm — esquema ilustrativo</text></svg>`;
@@ -311,11 +312,37 @@ function mkOpts(el,defs,key,onSel){
   el.innerHTML="";
   defs.forEach(([val,label])=>{
     const b=document.createElement("button");
+    b.type="button";
     b.className="opt"+(state[key]===val?" sel":"");
+    // o destaque .sel é só visual; aria-pressed diz ao leitor de tela qual opção está escolhida
+    b.setAttribute("aria-pressed",state[key]===val?"true":"false");
+    b.dataset.k=key; b.dataset.v=String(val);
     b.textContent=label;
-    b.onclick=()=>{state[key]=val;if(onSel)onSel(val);persist();render();};
+    b.onclick=()=>{state[key]=val;if(onSel)onSel(val);persist();render();focaDepois(`.opt[data-k="${key}"][data-v="${val}"]`);};
     el.appendChild(b);
   });
+}
+
+/* render() refaz os botões e a tabela inteira: o elemento com foco some e o teclado volta ao topo
+   da página. Estas funções devolvem o foco ao controle equivalente recém-desenhado. */
+function chaveFoco(el){
+  if(!el||!el.dataset||!el.matches) return null;
+  const d=el.dataset;
+  if(d.id&&d.f) return `[data-id="${d.id}"][data-f="${d.f}"]`;
+  if(d.id&&el.matches("button.rmit,button.lnk")) return `button.${el.classList[0]}[data-id="${d.id}"]`;
+  if(d.cat&&el.matches("button.addit")) return `button.addit[data-cat="${CSS.escape(d.cat)}"]`;
+  if(d.k&&el.matches(".opt")) return `.opt[data-k="${d.k}"][data-v="${CSS.escape(d.v)}"]`;
+  return null;
+}
+function focaDepois(seletor){
+  if(!seletor) return;
+  const n=document.querySelector(seletor);
+  if(n&&n.focus) n.focus();
+}
+/* onchange dispara antes do foco andar (Tab): espera o foco chegar ao próximo campo, lembra qual é
+   e só então redesenha, para o Tab continuar de onde estava */
+function renderMantendoFoco(){
+  setTimeout(()=>{ const k=chaveFoco(document.activeElement); render(); focaDepois(k); },0);
 }
 
 function persist(){localStorage.setItem("cncCfg",JSON.stringify(state));}
@@ -348,6 +375,8 @@ function desfazerRemocao(){
   }
   salvaDesfazer();
   render();
+  focaDepois(`button.rmit[data-id="${u.id}"]`);
+  if(document.activeElement===document.body) focaDepois("#undoBtn");
 }
 
 function render(){
@@ -424,7 +453,7 @@ function render(){
   cats.forEach(cat=>{
     const trc=document.createElement("tr");trc.className="cat";
     trc.innerHTML=`<td colspan="8"><span class="catnome">${escAttr(cat)}</span>`+
-      `<button class="addit" data-cat="${escAttr(cat)}" title="Acrescentar um item nesta categoria">+ item</button>`+
+      `<button class="addit" data-cat="${escAttr(cat)}" aria-label="+ item em ${escAttr(cat)}" title="Acrescentar um item nesta categoria">+ item</button>`+
       `<span class="catsum">${fmt(catTotals[cat])}</span></td>`;
     tb.appendChild(trc);
     rows.filter(r=>r.cat===cat).forEach(r=>{
@@ -441,17 +470,17 @@ function render(){
           `<td class="det" data-label="Loja">${r.storeEff||""}</td>`+
           `<td class="cel-acao"><span class="fixo" title="Item fixo do orçamento">•</span></td>`
         : `<td class="cel-item" data-label="Item">`+
-            `<input class="nome" data-id="${r.id}" data-f="item" value="${escAttr(r.itemEff)}" placeholder="nome do item" aria-label="Nome do item">`+
+            `<input class="nome" data-id="${r.id}" data-f="item" value="${escAttr(r.itemEff)}" placeholder="nome do item" aria-label="Nome do item${r.itemEff?": "+escAttr(r.itemEff):""}">`+
             badge+
           `</td>`+
-          `<td class="det" data-label="Detalhe"><input class="descr" data-id="${r.id}" data-f="det" value="${escAttr(r.detEff)}" placeholder="descrição (opcional)" aria-label="Descrição"></td>`+
-          `<td class="num" data-label="Qtd"><input class="qty" data-id="${r.id}" data-f="qty" type="number" min="0" step="any" value="${r.qtyEff}" aria-label="Quantidade"></td>`+
-          `<td data-label="Unid"><input class="unid" data-id="${r.id}" data-f="unit" list="listaUnidades" value="${escAttr(r.unitEff)}" aria-label="Unidade"></td>`+
-          `<td class="num" data-label="Preço unit."><input class="price" data-id="${r.id}" data-f="price" type="number" min="0" step="any" value="${+r.priceEff.toFixed(6)}" aria-label="Preço unitário"></td>`+
+          `<td class="det" data-label="Detalhe"><input class="descr" data-id="${r.id}" data-f="det" value="${escAttr(r.detEff)}" placeholder="descrição (opcional)" aria-label="Descrição de ${escAttr(r.itemEff||"item novo")}"></td>`+
+          `<td class="num" data-label="Qtd"><input class="qty" data-id="${r.id}" data-f="qty" type="number" min="0" step="any" value="${r.qtyEff}" aria-label="Quantidade de ${escAttr(r.itemEff||"item novo")}"></td>`+
+          `<td data-label="Unid"><input class="unid" data-id="${r.id}" data-f="unit" list="listaUnidades" value="${escAttr(r.unitEff)}" aria-label="Unidade de ${escAttr(r.itemEff||"item novo")}"></td>`+
+          `<td class="num" data-label="Preço unit."><input class="price" data-id="${r.id}" data-f="price" type="number" min="0" step="any" value="${+r.priceEff.toFixed(6)}" aria-label="Preço unitário de ${escAttr(r.itemEff||"item novo")} (R$)"></td>`+
           `<td class="num sub-total" data-label="Subtotal">${fmt(r.sub)}</td>`+
-          `<td class="det" data-label="Loja">${r.linkEff?`<a href="${r.linkEff}" target="_blank" rel="noopener">${r.storeEff}</a>`:(r.storeEff||"")}`+
-            `<button class="lnk${r.customLink?" custom":""}" data-id="${r.id}" aria-label="Trocar o link da loja" title="${r.customLink?"Link personalizado — clique para alterar":"Achou em outro site? Clique para colar o link novo"}">✎</button></td>`+
-          `<td class="cel-acao"><button class="rmit" data-id="${r.id}" aria-label="Remover ${escAttr(r.itemEff)}" title="Remover este item da lista">remover</button></td>`;
+          `<td class="det" data-label="Loja">${r.linkEff?`<a href="${r.linkEff}" target="_blank" rel="noopener">${r.storeEff}<span class="sr"> (abre em nova aba)</span></a>`:(r.storeEff||"")}`+
+            `<button class="lnk${r.customLink?" custom":""}" data-id="${r.id}" aria-label="Trocar o link da loja de ${escAttr(r.itemEff||"item novo")}" title="${r.customLink?"Link personalizado — clique para alterar":"Achou em outro site? Clique para colar o link novo"}">✎</button></td>`+
+          `<td class="cel-acao"><button class="rmit" data-id="${r.id}" aria-label="Remover ${escAttr(r.itemEff||"item novo")}" title="Remover este item da lista">remover</button></td>`;
       tb.appendChild(tr);
     });
   });
@@ -461,7 +490,7 @@ function render(){
       overrides[id]=overrides[id]||{};
       if(isNaN(v)){delete overrides[id][f];}else{overrides[id][f]=v;}
       salvaOverrides();
-      render();
+      renderMantendoFoco();
     };
   });
   // nome e descrição: texto livre. Guarda como está; vazio volta ao valor de fábrica.
@@ -472,7 +501,7 @@ function render(){
       overrides[id]=overrides[id]||{};
       if(v==="" && !(base&&base.extra)) delete overrides[id][f]; else overrides[id][f]=v;
       salvaOverrides();
-      render();
+      renderMantendoFoco();
     };
   });
   // unidade: entre m/cm/mm converte quantidade e preço para o subtotal não mudar de significado
@@ -480,13 +509,13 @@ function render(){
     inp.onchange=()=>{
       const id=inp.dataset.id, nova=inp.value.trim();
       const r=rows.find(x=>x.id===id);
-      if(!r||!nova){ render(); return; }
+      if(!r||!nova){ renderMantendoFoco(); return; }
       overrides[id]=overrides[id]||{};
       overrides[id].unit=nova;
       const conv=converteUnidade(r.qtyEff,r.priceEff,r.unitEff,nova);
       if(conv){ overrides[id].qty=conv.qty; overrides[id].price=conv.price; }
       salvaOverrides();
-      render();
+      renderMantendoFoco();
     };
   });
   tb.querySelectorAll("button.addit").forEach(btn=>{
@@ -524,6 +553,7 @@ function render(){
       }
       salvaDesfazer();
       render();
+      focaDepois("#undoBtn");
     };
   });
   tb.querySelectorAll("button.lnk").forEach(btn=>{
@@ -540,7 +570,7 @@ function render(){
         else { try{ overrides[id].store=new URL(url.trim()).hostname.replace("www.",""); }catch(e){} }
       }
       salvaOverrides();
-      render();
+      renderMantendoFoco();
     };
   });
   pintaDesfazer();

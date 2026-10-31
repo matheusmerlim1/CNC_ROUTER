@@ -7,17 +7,19 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..700&family=Spline+Sans+Mono:wght@400..600&display=swap">
-<link rel="stylesheet" href="assets/css/base.css?v=1f5c3f2d">
-<link rel="stylesheet" href="assets/css/formulario.css?v=32811a39">
+<link rel="stylesheet" href="assets/css/base.css?v=3e8ada51">
+<link rel="stylesheet" href="assets/css/formulario.css?v=add36297">
 </head>
 <body>
 <!-- impeccable-disable numbered-section-markers -- seções numeradas conforme o formulário oficial 01-FORM-001 -->
-<div class="topbar">
-  <a class="back" href="index.html">← início</a>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="topbar">
+  <nav aria-label="Navegação do site"><a class="back" href="index.html">← início</a></nav>
   <span class="docid">01-FORM-001 · Requisitos do Produto</span>
   <span class="spacer"></span>
   <button class="tema-btn" id="temaBtn" aria-label="Alternar tema claro e escuro">☾</button>
-</div>
+</header>
+<main id="conteudo">
 <h1>Que produto você deseja fazer?</h1>
 <p class="lead">Preencha com o máximo de detalhes que puder, com suas palavras. É com este documento que definimos
 o projeto: tudo que for construído vai seguir o que estiver escrito aqui. As respostas ficam salvas neste navegador.</p>
@@ -27,83 +29,83 @@ o projeto: tudo que for construído vai seguir o que estiver escrito aqui. As re
   <button id="pdfBtn">Imprimir / salvar PDF</button>
   <button class="accent" id="txtBtn">Exportar respostas (.txt)</button>
   <button id="limparBtn">Limpar</button>
-  <span class="saved" id="savedMsg"></span>
+  <span class="saved" id="savedMsg" role="status"></span>
 </div>
 
-<div class="sec">
-  <h2>1 · Seus dados</h2>
+<section class="sec" aria-labelledby="sec1">
+  <h2 id="sec1">1 · Seus dados</h2>
   <div class="duo">
-    <div><span class="rlabel">Nome completo</span><input class="rtxt" data-rk="cli_nome" data-l="Nome"></div>
-    <div><span class="rlabel">Empresa (se houver)</span><input class="rtxt" data-rk="cli_empresa" data-l="Empresa"></div>
-    <div><span class="rlabel">Telefone / WhatsApp</span><input class="rtxt" data-rk="cli_tel" data-l="Telefone"></div>
-    <div><span class="rlabel">E-mail</span><input class="rtxt" data-rk="cli_email" data-l="E-mail"></div>
-    <div><span class="rlabel">Cidade / UF</span><input class="rtxt" data-rk="cli_cidade" data-l="Cidade"></div>
-    <div><span class="rlabel">Data do pedido</span><input class="rtxt" data-rk="cli_data" data-l="Data" placeholder="__/__/____"></div>
+    <div><label class="rlabel" for="f_cli_nome">Nome completo</label><input class="rtxt" id="f_cli_nome" autocomplete="name" data-rk="cli_nome" data-l="Nome"></div>
+    <div><label class="rlabel" for="f_cli_empresa">Empresa (se houver)</label><input class="rtxt" id="f_cli_empresa" autocomplete="organization" data-rk="cli_empresa" data-l="Empresa"></div>
+    <div><label class="rlabel" for="f_cli_tel">Telefone / WhatsApp</label><input class="rtxt" id="f_cli_tel" type="tel" autocomplete="tel" data-rk="cli_tel" data-l="Telefone"></div>
+    <div><label class="rlabel" for="f_cli_email">E-mail</label><input class="rtxt" id="f_cli_email" type="email" autocomplete="email" data-rk="cli_email" data-l="E-mail"></div>
+    <div><label class="rlabel" for="f_cli_cidade">Cidade / UF</label><input class="rtxt" id="f_cli_cidade" autocomplete="address-level2" data-rk="cli_cidade" data-l="Cidade"></div>
+    <div><label class="rlabel" for="f_cli_data">Data do pedido</label><input class="rtxt" id="f_cli_data" data-rk="cli_data" data-l="Data" placeholder="__/__/____"></div>
   </div>
-</div>
+</section>
 
-<div class="sec">
-  <h2>2 · O produto que você deseja</h2>
+<section class="sec" aria-labelledby="sec2">
+  <h2 id="sec2">2 · O produto que você deseja</h2>
   <p class="hint">Descreva o que você quer que seja construído e para que ele vai servir.</p>
-  <span class="rlabel">Nome / descrição resumida do produto</span>
-  <input class="rtxt" data-rk="prod_nome" data-l="Produto" placeholder="ex.: CNC router para usinar peças de alumínio 700×500 mm">
-  <span class="rlabel">O que ele precisa fazer? (objetivo principal)</span>
-  <textarea class="rtxt" rows="3" data-rk="prod_obj" data-l="Objetivo"></textarea>
-</div>
+  <label class="rlabel" for="f_prod_nome">Nome / descrição resumida do produto</label>
+  <input class="rtxt" id="f_prod_nome" data-rk="prod_nome" data-l="Produto" placeholder="ex.: CNC router para usinar peças de alumínio 700×500 mm">
+  <label class="rlabel" for="f_prod_obj">O que ele precisa fazer? (objetivo principal)</label>
+  <textarea class="rtxt" rows="3" id="f_prod_obj" data-rk="prod_obj" data-l="Objetivo"></textarea>
+</section>
 
-<div class="sec">
-  <h2>3 · Que problema ele resolve para você?</h2>
-  <p class="hint">Essa é a pergunta mais importante: no final, o produto será avaliado por resolver (ou não) isso aqui.</p>
-  <textarea class="rtxt" rows="3" data-rk="dor_desc" data-l="Problema que resolve" placeholder="ex.: hoje mando usinar fora e demora 3 semanas; quero produzir minhas próprias peças com qualidade"></textarea>
-  <span class="rlabel">Como você resolve isso hoje?</span>
-  <textarea class="rtxt" rows="2" data-rk="dor_hoje" data-l="Solução atual"></textarea>
-</div>
+<section class="sec" aria-labelledby="sec3">
+  <h2 id="sec3">3 · Que problema ele resolve para você?</h2>
+  <p class="hint" id="dica_dor">Essa é a pergunta mais importante: no final, o produto será avaliado por resolver (ou não) isso aqui.</p>
+  <textarea class="rtxt" rows="3" data-rk="dor_desc" aria-labelledby="sec3" aria-describedby="dica_dor" data-l="Problema que resolve" placeholder="ex.: hoje mando usinar fora e demora 3 semanas; quero produzir minhas próprias peças com qualidade"></textarea>
+  <label class="rlabel" for="f_dor_hoje">Como você resolve isso hoje?</label>
+  <textarea class="rtxt" rows="2" id="f_dor_hoje" data-rk="dor_hoje" data-l="Solução atual"></textarea>
+</section>
 
-<div class="sec">
-  <h2>4 · Uso e aplicação</h2>
-  <div class="duo"><div>
-  <span class="rlabel">Tipo de uso</span>
+<section class="sec" aria-labelledby="sec4">
+  <h2 id="sec4">4 · Uso e aplicação</h2>
+  <div class="duo"><div role="group" aria-labelledby="g_uso">
+  <span class="rlabel" id="g_uso">Tipo de uso</span>
   <label class="chk"><input type="checkbox" data-rk="uso_prof" data-l="Uso profissional">Profissional (dia a dia)</label>
   <label class="chk"><input type="checkbox" data-rk="uso_prod" data-l="Produção leve">Produção leve / sob demanda</label>
   <label class="chk"><input type="checkbox" data-rk="uso_hobby" data-l="Hobby">Hobby / uso pessoal</label>
-  </div><div>
-  <span class="rlabel">Materiais que pretende trabalhar</span>
+  </div><div role="group" aria-labelledby="g_mat">
+  <span class="rlabel" id="g_mat">Materiais que pretende trabalhar</span>
   <label class="chk"><input type="checkbox" data-rk="mat_alu" data-l="Material: alumínio">Alumínio</label>
   <label class="chk"><input type="checkbox" data-rk="mat_mad" data-l="Material: madeira/MDF">Madeira / MDF</label>
   <label class="chk"><input type="checkbox" data-rk="mat_pla" data-l="Material: plásticos">Plásticos / acrílico</label>
   <label class="chk"><input type="checkbox" data-rk="mat_outro" data-l="Material: outro">Outro:</label>
-  <input class="rtxt" data-rk="mat_outro_desc" data-l="Outro material"></div></div>
-  <span class="rlabel">Quem vai operar? Já tem experiência com CNC?</span>
-  <input class="rtxt" data-rk="uso_operador" data-l="Operador">
-</div>
+  <input class="rtxt" data-rk="mat_outro_desc" data-l="Outro material" aria-label="Outro material: qual?"></div></div>
+  <label class="rlabel" for="f_uso_operador">Quem vai operar? Já tem experiência com CNC?</label>
+  <input class="rtxt" id="f_uso_operador" data-rk="uso_operador" data-l="Operador">
+</section>
 
-<div class="sec">
-  <h2>5 · Tamanhos, quantidades e desempenho</h2>
+<section class="sec" aria-labelledby="sec5">
+  <h2 id="sec5">5 · Tamanhos, quantidades e desempenho</h2>
   <div class="duo">
-    <div><span class="rlabel">Maior peça que precisa produzir (C × L × A)</span>
-    <input class="rtxt" data-rk="dim_peca" data-l="Maior peça" placeholder="ex.: 600 × 400 × 40 mm"></div>
-    <div><span class="rlabel">Espaço disponível para a máquina (área e pé-direito)</span>
-    <input class="rtxt" data-rk="dim_espaco" data-l="Espaço disponível" placeholder="ex.: 2 × 1,5 m em garagem coberta"></div>
-    <div><span class="rlabel">Quantas peças por mês (aproximado)?</span>
-    <input class="rtxt" data-rk="dim_qtd" data-l="Peças/mês"></div>
-    <div><span class="rlabel">Precisão que o seu produto exige</span>
-    <input class="rtxt" data-rk="dim_precisao" data-l="Precisão exigida" placeholder="ex.: encaixes justos, ±0,05 mm / não sei, quero orientação"></div>
+    <div><label class="rlabel" for="f_dim_peca">Maior peça que precisa produzir (C × L × A)</label>
+    <input class="rtxt" id="f_dim_peca" data-rk="dim_peca" data-l="Maior peça" placeholder="ex.: 600 × 400 × 40 mm"></div>
+    <div><label class="rlabel" for="f_dim_espaco">Espaço disponível para a máquina (área e pé-direito)</label>
+    <input class="rtxt" id="f_dim_espaco" data-rk="dim_espaco" data-l="Espaço disponível" placeholder="ex.: 2 × 1,5 m em garagem coberta"></div>
+    <div><label class="rlabel" for="f_dim_qtd">Quantas peças por mês (aproximado)?</label>
+    <input class="rtxt" id="f_dim_qtd" data-rk="dim_qtd" data-l="Peças/mês"></div>
+    <div><label class="rlabel" for="f_dim_precisao">Precisão que o seu produto exige</label>
+    <input class="rtxt" id="f_dim_precisao" data-rk="dim_precisao" data-l="Precisão exigida" placeholder="ex.: encaixes justos, ±0,05 mm / não sei, quero orientação"></div>
   </div>
-  <span class="rlabel">O que NÃO pode faltar de jeito nenhum? (requisitos obrigatórios)</span>
-  <textarea class="rtxt" rows="2" data-rk="dim_obrigatorio" data-l="Requisitos obrigatórios"></textarea>
-</div>
+  <label class="rlabel" for="f_dim_obrigatorio">O que NÃO pode faltar de jeito nenhum? (requisitos obrigatórios)</label>
+  <textarea class="rtxt" rows="2" id="f_dim_obrigatorio" data-rk="dim_obrigatorio" data-l="Requisitos obrigatórios"></textarea>
+</section>
 
-<div class="sec">
-  <h2>6 · Instalação elétrica do local</h2>
+<section class="sec" aria-labelledby="sec6">
+  <h2 id="sec6">6 · Instalação elétrica do local</h2>
   <label class="chk"><input type="checkbox" data-rk="ele_110" data-l="Rede 110V">Tenho rede 110 V</label>
   <label class="chk"><input type="checkbox" data-rk="ele_220" data-l="Rede 220V">Tenho rede 220 V</label>
   <label class="chk"><input type="checkbox" data-rk="ele_naosei" data-l="Não sei a rede">Não sei, precisa verificar</label>
-  <span class="rlabel">Observações sobre o local (disjuntores, aterramento, tomadas)</span>
-  <input class="rtxt" data-rk="ele_obs" data-l="Observações elétricas">
-</div>
+  <label class="rlabel" for="f_ele_obs">Observações sobre o local (disjuntores, aterramento, tomadas)</label>
+  <input class="rtxt" id="f_ele_obs" data-rk="ele_obs" data-l="Observações elétricas">
+</section>
 
-<div class="sec seg">
-  <h2>7 · Segurança (importante)</h2>
+<section class="sec seg" aria-labelledby="sec7">
+  <h2 id="sec7">7 · Segurança (importante)</h2>
   <p class="hint">Requisitos de segurança do projeto. Em ambiente profissional / empresa, a NR-12 é obrigatória.</p>
   <label class="chk"><input type="checkbox" data-rk="seg_estop" data-l="Botão de emergência">Botão de emergência</label>
   <label class="chk"><input type="checkbox" data-rk="seg_rele" data-l="Relé de segurança">Relé de segurança</label>
@@ -111,73 +113,53 @@ o projeto: tudo que for construído vai seguir o que estiver escrito aqui. As re
   <label class="chk"><input type="checkbox" data-rk="seg_enclau" data-l="Enclausuramento">Enclausuramento completo (proteção contra cavacos e acesso)</label>
   <label class="chk"><input type="checkbox" data-rk="seg_porta" data-l="Intertravamento">Intertravamento de portas (máquina para ao abrir)</label>
   <label class="chk"><input type="checkbox" data-rk="seg_nr" data-l="Exige NR-10/NR-12">O local exige conformidade com NR-10 / NR-12 (empresa)</label>
-</div>
+</section>
 
-<div class="sec">
-  <h2>8 · Prazo e orçamento</h2>
+<section class="sec" aria-labelledby="sec8">
+  <h2 id="sec8">8 · Prazo e orçamento</h2>
   <div class="duo">
-    <div><span class="rlabel">Para quando você precisa?</span>
-    <input class="rtxt" data-rk="orc_prazo" data-l="Prazo"></div>
-    <div><span class="rlabel">Faixa de orçamento disponível</span>
-    <input class="rtxt" data-rk="orc_valor" data-l="Orçamento" placeholder="ex.: R$ 20.000 a 30.000"></div>
+    <div><label class="rlabel" for="f_orc_prazo">Para quando você precisa?</label>
+    <input class="rtxt" id="f_orc_prazo" data-rk="orc_prazo" data-l="Prazo"></div>
+    <div><label class="rlabel" for="f_orc_valor">Faixa de orçamento disponível</label>
+    <input class="rtxt" id="f_orc_valor" data-rk="orc_valor" data-l="Orçamento" placeholder="ex.: R$ 20.000 a 30.000"></div>
   </div>
-</div>
+</section>
 
-<div class="sec">
-  <h2>9 · Restrições e referências</h2>
-  <span class="rlabel">Restrições conhecidas (peso máximo, portas/escadas para transporte, ruído, horário de obra)</span>
-  <textarea class="rtxt" rows="2" data-rk="res_restr" data-l="Restrições"></textarea>
-  <span class="rlabel">Referências: links, fotos ou vídeos de algo parecido com o que você quer</span>
-  <textarea class="rtxt" rows="2" data-rk="res_refs" data-l="Referências"></textarea>
-  <span class="rlabel">Alguma coisa que ainda não perguntamos e você acha importante?</span>
-  <textarea class="rtxt" rows="2" data-rk="res_extra" data-l="Observações extras"></textarea>
-</div>
+<section class="sec" aria-labelledby="sec9">
+  <h2 id="sec9">9 · Restrições e referências</h2>
+  <label class="rlabel" for="f_res_restr">Restrições conhecidas (peso máximo, portas/escadas para transporte, ruído, horário de obra)</label>
+  <textarea class="rtxt" rows="2" id="f_res_restr" data-rk="res_restr" data-l="Restrições"></textarea>
+  <label class="rlabel" for="f_res_refs">Referências: links, fotos ou vídeos de algo parecido com o que você quer</label>
+  <textarea class="rtxt" rows="2" id="f_res_refs" data-rk="res_refs" data-l="Referências"></textarea>
+  <label class="rlabel" for="f_res_extra">Alguma coisa que ainda não perguntamos e você acha importante?</label>
+  <textarea class="rtxt" rows="2" id="f_res_extra" data-rk="res_extra" data-l="Observações extras"></textarea>
+</section>
 
-<div class="sec">
-  <h2>10 · Confirmação</h2>
+<section class="sec" aria-labelledby="sec10">
+  <h2 id="sec10">10 · Confirmação</h2>
   <label class="chk"><input type="checkbox" data-rk="apr_confirmo" data-l="Confirmação do cliente">Confirmo que as informações acima descrevem o produto que eu desejo. Entendo que o projeto será desenvolvido com base neste documento e que mudanças depois de aprovado podem alterar prazo e custo.</label>
   <div class="sign">
     <div>Assinatura do cliente</div>
     <div>Data</div>
   </div>
-</div>
+</section>
+</main>
 
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="assets/js/contato.js?v=bf2ed269"></script>
 <script src="assets/js/formulario.js?v=2607bd30"></script>
 <!-- === Botao de volta ao portfolio - cole antes de </body> === -->
+<nav aria-label="Portf&oacute;lio">
 <a id="mr-portfolio-btn" href="https://matheusmerlim1.github.io/" target="_blank" rel="noopener"
-   aria-label="Abrir o portf&oacute;lio de Matheus Raposo" title="Ver todos os meus projetos">
+   aria-label="Portf&oacute;lio de Matheus Raposo (abre em nova aba)" title="Ver todos os meus projetos">
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>
   </svg>
   <span>Portf&oacute;lio</span>
 </a>
-<style>
-#mr-portfolio-btn {
-  position: fixed; top: 12px; right: 12px; z-index: 2147483000;
-  display: inline-flex; align-items: center; gap: .4rem;
-  padding: .42rem .8rem; border-radius: 999px;
-  font: 600 13px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: #e8edf5; text-decoration: none; white-space: nowrap;
-  background: rgba(18,24,38,.92);
-  border: 1px solid rgba(88,166,255,.45);
-  box-shadow: 0 2px 12px rgba(0,0,0,.35);
-  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
-  transition: transform .15s, border-color .15s, background .15s;
-}
-#mr-portfolio-btn:hover {
-  transform: translateY(-1px); color: #fff; text-decoration: none;
-  background: rgba(24,32,50,.96); border-color: #58a6ff;
-}
-#mr-portfolio-btn:focus-visible { outline: 2px solid #58a6ff; outline-offset: 2px; }
-@media (max-width: 520px) {
-  #mr-portfolio-btn { padding: .45rem; }
-  #mr-portfolio-btn span { display: none; }
-}
-@media print { #mr-portfolio-btn { display: none; } }
-</style>
+</nav>
+<!-- estilo do botão em assets/css/base.css (a suíte de testes proíbe CSS em bloco na página) -->
 <script>
 /* Abre espaco para o botao em vez de cobrir o que ja existia no canto.
    1) empurra para a esquerda o conteudo da barra que ocupa aquele espaco;

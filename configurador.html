@@ -7,16 +7,18 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..700&family=Spline+Sans+Mono:wght@400..600&display=swap">
-<link rel="stylesheet" href="assets/css/base.css?v=1f5c3f2d">
-<link rel="stylesheet" href="assets/css/configurador.css?v=a731257a">
+<link rel="stylesheet" href="assets/css/base.css?v=3e8ada51">
+<link rel="stylesheet" href="assets/css/configurador.css?v=cde9956b">
 </head>
 <body>
 <!-- impeccable-disable numbered-section-markers -- 1 a 5 são as etapas reais de configuração, em ordem obrigatória -->
-<div class="topbar">
-  <a class="back" href="index.html">← início</a>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
+<header class="topbar">
+  <nav aria-label="Navegação do site"><a class="back" href="index.html">← início</a></nav>
   <span class="spacer"></span>
   <button class="tema-btn" id="temaBtn" aria-label="Alternar tema claro e escuro">☾</button>
-</div>
+</header>
+<main id="conteudo">
 <h1>Monte a sua CNC Router</h1>
 <p class="sub">Escolha o material, o tamanho dos eixos, a transmissão e a motorização. A lista de peças e o custo
 se montam sozinhos. Tudo na tabela é editável: nome, descrição, quantidade, unidade e preço. Use o <b>+ item</b>
@@ -25,37 +27,37 @@ Trocar a unidade entre <b>m</b>, <b>cm</b> e <b>mm</b> converte a quantidade e o
 <span class="chk">✔ VERIFICADO</span> = preço confirmado na loja em 14/07/2026 · <span class="est">EST</span> = estimativa a confirmar.</p>
 
 <div class="modebar">
-  <span class="modelbl">Quem vai montar a máquina?</span>
-  <div class="opts" id="modoOpts"></div>
+  <span class="modelbl" id="modoLbl">Quem vai montar a máquina?</span>
+  <div class="opts" id="modoOpts" role="group" aria-labelledby="modoLbl"></div>
   <span class="note" id="modoNote"></span>
 </div>
 
 <div class="steps">
   <div class="card">
-    <h2>1 · Material de corte</h2>
-    <div class="opts" id="matOpts"></div>
+    <h2 id="matTit">1 · Material de corte</h2>
+    <div class="opts" id="matOpts" role="group" aria-labelledby="matTit"></div>
     <div class="note" id="matNote"></div>
   </div>
   <div class="card">
-    <h2>2 · Comprimento dos eixos</h2>
-    <div class="axisrow"><span>Eixo X</span><div class="opts" id="xOpts"></div></div>
-    <div class="axisrow"><span>Eixo Y</span><div class="opts" id="yOpts"></div></div>
-    <div class="axisrow"><span>Eixo Z</span><div class="opts" id="zOpts"></div></div>
+    <h2 id="eixoTit">2 · Comprimento dos eixos</h2>
+    <div class="axisrow"><span id="eixoX">Eixo X</span><div class="opts" id="xOpts" role="group" aria-labelledby="eixoTit eixoX"></div></div>
+    <div class="axisrow"><span id="eixoY">Eixo Y</span><div class="opts" id="yOpts" role="group" aria-labelledby="eixoTit eixoY"></div></div>
+    <div class="axisrow"><span id="eixoZ">Eixo Z</span><div class="opts" id="zOpts" role="group" aria-labelledby="eixoTit eixoZ"></div></div>
     <div class="note" id="axisNote"></div>
   </div>
   <div class="card">
-    <h2>3 · Transmissão X e Y</h2>
-    <div class="opts" id="transOpts"></div>
+    <h2 id="transTit">3 · Transmissão X e Y</h2>
+    <div class="opts" id="transOpts" role="group" aria-labelledby="transTit"></div>
     <div class="note" id="transNote"></div>
   </div>
   <div class="card">
-    <h2>4 · Motorização (motor + driver + fonte)</h2>
-    <div class="opts" id="motorOpts"></div>
+    <h2 id="motorTit">4 · Motorização (motor + driver + fonte)</h2>
+    <div class="opts" id="motorOpts" role="group" aria-labelledby="motorTit"></div>
     <div class="note" id="motorNote"></div>
   </div>
   <div class="card">
-    <h2>5 · Perfil de alumínio da estrutura</h2>
-    <div class="opts" id="perfilOpts"></div>
+    <h2 id="perfilTit">5 · Perfil de alumínio da estrutura</h2>
+    <div class="opts" id="perfilOpts" role="group" aria-labelledby="perfilTit"></div>
     <div class="note" id="perfilNote"></div>
   </div>
 </div>
@@ -66,10 +68,11 @@ Trocar a unidade entre <b>m</b>, <b>cm</b> e <b>mm</b> converte a quantidade e o
 
 </div>
 
-<div class="alert" id="alertBox"></div>
+<!-- avisos mudam conforme a configuração: aria-live faz o leitor de tela anunciar -->
+<div class="alert" id="alertBox" aria-live="polite"></div>
 
 <div class="totalbar">
-  <div class="totalinfo"><div class="big" id="grandTotal">R$ 0,00</div><div class="cfg" id="cfgLabel"></div></div>
+  <div class="totalinfo"><div class="big" id="grandTotal" aria-live="polite" aria-atomic="true">R$ 0,00</div><div class="cfg" id="cfgLabel"></div></div>
   <button class="send" id="enviaBtn" title="Envia esta configuração e a planilha por e-mail">Enviar solicitação</button>
   <button class="reset accent" id="xlsBtn" title="Baixa a planilha com as fórmulas de quantidade × preço, subtotais e total">Exportar Excel</button>
   <button class="reset" id="resetBtn" title="Descarta preços, quantidades e links editados e reinclui os itens">Restaurar padrão</button>
@@ -82,13 +85,14 @@ Trocar a unidade entre <b>m</b>, <b>cm</b> e <b>mm</b> converte a quantidade e o
   <option value="par"></option><option value="barra"></option><option value="jogo"></option>
 </datalist>
 
-<div class="undobar" id="undoBar" hidden>
+<div class="undobar" id="undoBar" role="status" hidden>
   <span>Removido: <b id="undoNome"></b><span class="undoqtd" id="undoQtd"></span></span>
   <button id="undoBtn">Trazer de volta</button>
 </div>
 
 <div class="tablewrap">
 <table>
+  <caption class="sr">Lista de peças e custos da máquina configurada</caption>
   <thead><tr>
     <th style="width:28%">Item</th><th>Detalhe / uso</th>
     <th class="num">Qtd</th><th>Unid</th>
@@ -115,48 +119,29 @@ Trocar a unidade entre <b>m</b>, <b>cm</b> e <b>mm</b> converte a quantidade e o
   </label>
 </div>
 
-<p class="foot">
+</main>
+
+<footer class="foot">
   Os links do Mercado Livre abrem a <b>busca</b> do produto, não um anúncio fixo: assim você sempre vê as ofertas
   ativas mais baratas. Preços conferidos em 14/07/2026 e sujeitos a alteração pelas lojas.
   Achou mais barato em outro lugar? Clique no ✎ ao lado da loja e cole o link novo.
-</p>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="assets/js/contato.js?v=bf2ed269"></script>
-<script src="assets/js/configurador.js?v=30a76524"></script>
+<script src="assets/js/configurador.js?v=19fdf9fd"></script>
 <!-- === Botao de volta ao portfolio - cole antes de </body> === -->
+<nav aria-label="Portf&oacute;lio">
 <a id="mr-portfolio-btn" href="https://matheusmerlim1.github.io/" target="_blank" rel="noopener"
-   aria-label="Abrir o portf&oacute;lio de Matheus Raposo" title="Ver todos os meus projetos">
+   aria-label="Portf&oacute;lio de Matheus Raposo (abre em nova aba)" title="Ver todos os meus projetos">
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>
   </svg>
   <span>Portf&oacute;lio</span>
 </a>
-<style>
-#mr-portfolio-btn {
-  position: fixed; top: 12px; right: 12px; z-index: 2147483000;
-  display: inline-flex; align-items: center; gap: .4rem;
-  padding: .42rem .8rem; border-radius: 999px;
-  font: 600 13px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: #e8edf5; text-decoration: none; white-space: nowrap;
-  background: rgba(18,24,38,.92);
-  border: 1px solid rgba(88,166,255,.45);
-  box-shadow: 0 2px 12px rgba(0,0,0,.35);
-  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
-  transition: transform .15s, border-color .15s, background .15s;
-}
-#mr-portfolio-btn:hover {
-  transform: translateY(-1px); color: #fff; text-decoration: none;
-  background: rgba(24,32,50,.96); border-color: #58a6ff;
-}
-#mr-portfolio-btn:focus-visible { outline: 2px solid #58a6ff; outline-offset: 2px; }
-@media (max-width: 520px) {
-  #mr-portfolio-btn { padding: .45rem; }
-  #mr-portfolio-btn span { display: none; }
-}
-@media print { #mr-portfolio-btn { display: none; } }
-</style>
+</nav>
+<!-- estilo do botão em assets/css/base.css (a suíte de testes proíbe CSS em bloco na página) -->
 <script>
 /* Abre espaco para o botao em vez de cobrir o que ja existia no canto.
    1) empurra para a esquerda o conteudo da barra que ocupa aquele espaco;

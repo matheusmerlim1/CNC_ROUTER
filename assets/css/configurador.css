@@ -16,7 +16,7 @@ h1{font-size:var(--fs-sub);margin:0 0 4px;font-weight:700}
 .cf-wide{margin-top:12px}
 .steps{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:20px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;flex:1;min-width:230px}
-.card h2{margin:0 0 10px;font-size:var(--fs-label);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.card h2{margin:0 0 10px;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
 .card-viz{margin-bottom:20px}
 .card-dados{margin-top:20px}
 .note-top{margin-top:0}
@@ -44,9 +44,9 @@ tr.cat td{background:var(--cat);font-weight:700;font-size:.85rem;letter-spacing:
 tr.cat .catsum{float:right;color:var(--accent);font-family:var(--font-mono);font-variant-numeric:tabular-nums}
 td.num, th.num{text-align:right;white-space:nowrap}
 td.num,.sub-total{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
-.qty,.price{width:80px;text-align:right;border:1px dashed var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:4px 6px;font-family:var(--font-mono);font-size:.85rem;font-variant-numeric:tabular-nums}
+.qty,.price{width:80px;text-align:right;border:1px dashed var(--ctl);background:transparent;color:var(--ink);border-radius:6px;padding:4px 6px;font-family:var(--font-mono);font-size:.85rem;font-variant-numeric:tabular-nums}
 .price{width:100px}
-.qty:focus,.price:focus{border-color:var(--accent);outline:none}
+.qty:focus,.price:focus{border-color:var(--accent)}
 /* nome, descrição e unidade: parecem texto até o cursor chegar, aí se revelam editáveis */
 .nome,.descr,.unid{width:100%;border:1px solid transparent;background:transparent;color:inherit;
   border-radius:6px;padding:3px 5px;font:inherit;transition:border-color .15s ease,background .15s ease}
@@ -54,7 +54,7 @@ td.num,.sub-total{font-family:var(--font-mono);font-variant-numeric:tabular-nums
 .descr{color:var(--muted)}
 .unid{width:74px;font-family:var(--font-mono);font-size:.85rem}
 .nome:hover,.descr:hover,.unid:hover{border-color:var(--line);background:var(--bg)}
-.nome:focus,.descr:focus,.unid:focus{border-color:var(--accent);background:var(--bg);outline:none}
+.nome:focus,.descr:focus,.unid:focus{border-color:var(--accent);background:var(--bg)}
 .nome::placeholder,.descr::placeholder{color:var(--muted);opacity:.7}
 /* botões de acrescentar e remover item */
 .catnome{font-weight:700}
@@ -75,16 +75,18 @@ td.cel-acao{text-align:right;white-space:nowrap}
   border-radius:8px;padding:7px 14px;cursor:pointer;font-family:inherit;font-size:.88rem;font-weight:600}
 .undobar button:hover{background:var(--warn);color:var(--card)}
 .undobar button:active{transform:translateY(1px)}
-/* rótulo só para leitor de tela */
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-.est{color:var(--warn);font-size:.72rem;font-weight:600;margin-left:4px}
-.lnk{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:.85rem;padding:0 4px}
+.est{color:var(--warn);font-size:.75rem;font-weight:600;margin-left:4px}
+/* mínimo de 24×24 (WCAG 2.5.8): o ✎ sozinho media ~18px e encostava no link da loja */
+.lnk{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:.85rem;padding:0 4px;
+  min-width:24px;min-height:24px;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle}
 .lnk:hover{color:var(--accent)}
+/* link da loja com 24px de altura (2.5.8): quando o nome quebra em duas linhas ele encostava no ✎ */
+td.det[data-label="Loja"] a{display:inline-block;padding:4px 0}
 .lnk.custom{color:var(--ok)}
-.chk{color:var(--ok);font-size:.72rem;font-weight:600;margin-left:4px}
+.chk{color:var(--ok);font-size:.75rem;font-weight:600;margin-left:4px}
 .det{color:var(--muted);font-size:.8rem}
 .sub-total{font-weight:700}
-.foot{color:var(--muted);font-size:.8rem;margin-top:14px;line-height:1.5}
+.foot{display:block;color:var(--muted);font-size:.8rem;margin:14px 0 1em;line-height:1.5}
 .topbar{display:flex;align-items:center;gap:14px;margin-bottom:6px}
 .topbar a.back{font-size:.85rem;color:var(--muted)}
 .topbar .spacer{flex:1}
@@ -101,10 +103,10 @@ button.send:hover{filter:brightness(1.08)}
 button.send:active{transform:translateY(1px)}
 button.send:disabled{opacity:.6;cursor:default;transform:none}
 /* campos de texto (dados do solicitante) */
-.rtxt{width:100%;border:1px dashed var(--line);background:transparent;color:var(--ink);border-radius:6px;
+.rtxt{width:100%;border:1px dashed var(--ctl);background:transparent;color:var(--ink);border-radius:6px;
   padding:7px 9px;font-family:inherit;font-size:1rem;transition:border-color .15s ease}
 .rtxt:hover{border-color:var(--muted)}
-.rtxt:focus{border-color:var(--accent);border-style:solid;outline:none}
+.rtxt:focus{border-color:var(--accent);border-style:solid}
 
 /* ---------- toque: alvos maiores onde não há mouse ---------- */
 @media (pointer: coarse){
@@ -140,8 +142,8 @@ button.send:disabled{opacity:.6;cursor:default;transform:none}
   td.det[data-label="Detalhe"]{display:block;text-align:left;padding-bottom:8px}
   td.det[data-label="Detalhe"]::before{display:block;margin-bottom:2px}
   /* no cartão os campos ocupam a linha e ficam com borda visível: sem cursor, não há "descobrir no hover" */
-  .nome,.descr{border-color:var(--line);background:var(--bg);padding:9px 10px;font-size:1rem}
-  .unid{width:100%;max-width:160px;padding:9px 10px;font-size:1rem;border-color:var(--line);background:var(--bg)}
+  .nome,.descr{border-color:var(--ctl);background:var(--bg);padding:9px 10px;font-size:1rem}
+  .unid{width:100%;max-width:160px;padding:9px 10px;font-size:1rem;border-color:var(--ctl);background:var(--bg)}
   .addit{padding:8px 14px;font-size:.85rem}
   /* no cartão, remover vira ação de largura total no rodapé do item */
   td.cel-acao{display:block;text-align:left;padding-top:10px}

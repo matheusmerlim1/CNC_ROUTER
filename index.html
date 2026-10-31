@@ -7,8 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..700&family=Spline+Sans+Mono:wght@400..600&display=swap">
-<link rel="stylesheet" href="assets/css/base.css?v=1f5c3f2d">
-<link rel="stylesheet" href="assets/css/index.css?v=a68c2d0e">
+<link rel="stylesheet" href="assets/css/base.css?v=3e8ada51">
+<link rel="stylesheet" href="assets/css/index.css?v=0ce50f71">
 </head>
 <body>
 <div class="wrap">
@@ -18,6 +18,7 @@
     <button class="tema-btn" id="temaBtn" aria-label="Alternar tema claro e escuro">☾</button>
   </header>
 
+  <main id="conteudo">
   <section class="hero">
     <div class="hero-txt">
       <h1>CNC routers feitas sob medida para o seu trabalho.</h1>
@@ -125,11 +126,11 @@
 
   <section class="contact">
     <div class="txt">
-      <h3>Dúvidas ou quer seguir com o projeto?</h3>
+      <h2>Dúvidas ou quer seguir com o projeto?</h2>
       <p>Fale direto com a gente pelo WhatsApp ou por e-mail.</p>
     </div>
     <div class="btns">
-      <a class="btn wa" id="waBtn" href="#" target="_blank" rel="noopener">
+      <a class="btn wa" id="waBtn" href="#" target="_blank" rel="noopener" aria-label="WhatsApp (abre em nova aba)">
         <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path fill="currentColor" d="M12.04 2A9.9 9.9 0 0 0 2.1 11.9a9.8 9.8 0 0 0 1.36 5L2 22l5.25-1.37a9.94 9.94 0 0 0 4.79 1.22h.01a9.9 9.9 0 0 0 9.93-9.9A9.9 9.9 0 0 0 12.04 2Zm0 18.15h-.01a8.25 8.25 0 0 1-4.2-1.15l-.3-.18-3.12.81.84-3.03-.2-.31a8.2 8.2 0 0 1-1.26-4.39 8.24 8.24 0 1 1 8.25 8.25Zm4.52-6.17c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.24-.64.8-.79.97-.14.16-.29.18-.54.06a6.74 6.74 0 0 1-1.99-1.23 7.5 7.5 0 0 1-1.38-1.71c-.14-.25-.01-.38.11-.5.11-.11.25-.29.37-.44.13-.15.17-.25.25-.42.09-.16.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.4-.41-.56-.42h-.47a.9.9 0 0 0-.66.31 2.76 2.76 0 0 0-.86 2.05c0 1.21.88 2.38 1 2.55.12.16 1.73 2.64 4.2 3.7.58.26 1.04.41 1.4.52.59.19 1.13.16 1.55.1.47-.07 1.47-.6 1.67-1.18.21-.58.21-1.08.15-1.18-.06-.11-.22-.17-.47-.29Z"/>
         </svg>
@@ -144,45 +145,25 @@
       </a>
     </div>
   </section>
+  </main>
 
-  <p class="foot">Projeto e montagem sob encomenda. Prazos e valores confirmados após a análise da sua solicitação.</p>
+  <footer class="foot">Projeto e montagem sob encomenda. Prazos e valores confirmados após a análise da sua solicitação.</footer>
 </div>
 
 <script src="assets/js/contato.js?v=bf2ed269"></script>
 <script src="assets/js/index.js?v=171378be"></script>
 <!-- === Botao de volta ao portfolio - cole antes de </body> === -->
+<nav aria-label="Portf&oacute;lio">
 <a id="mr-portfolio-btn" href="https://matheusmerlim1.github.io/" target="_blank" rel="noopener"
-   aria-label="Abrir o portf&oacute;lio de Matheus Raposo" title="Ver todos os meus projetos">
+   aria-label="Portf&oacute;lio de Matheus Raposo (abre em nova aba)" title="Ver todos os meus projetos">
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
        stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>
   </svg>
   <span>Portf&oacute;lio</span>
 </a>
-<style>
-#mr-portfolio-btn {
-  position: fixed; top: 12px; right: 12px; z-index: 2147483000;
-  display: inline-flex; align-items: center; gap: .4rem;
-  padding: .42rem .8rem; border-radius: 999px;
-  font: 600 13px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: #e8edf5; text-decoration: none; white-space: nowrap;
-  background: rgba(18,24,38,.92);
-  border: 1px solid rgba(88,166,255,.45);
-  box-shadow: 0 2px 12px rgba(0,0,0,.35);
-  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
-  transition: transform .15s, border-color .15s, background .15s;
-}
-#mr-portfolio-btn:hover {
-  transform: translateY(-1px); color: #fff; text-decoration: none;
-  background: rgba(24,32,50,.96); border-color: #58a6ff;
-}
-#mr-portfolio-btn:focus-visible { outline: 2px solid #58a6ff; outline-offset: 2px; }
-@media (max-width: 520px) {
-  #mr-portfolio-btn { padding: .45rem; }
-  #mr-portfolio-btn span { display: none; }
-}
-@media print { #mr-portfolio-btn { display: none; } }
-</style>
+</nav>
+<!-- estilo do botão em assets/css/base.css (a suíte de testes proíbe CSS em bloco na página) -->
 <script>
 /* Abre espaco para o botao em vez de cobrir o que ja existia no canto.
    1) empurra para a esquerda o conteudo da barra que ocupa aquele espaco;

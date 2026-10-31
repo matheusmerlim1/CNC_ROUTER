@@ -13,8 +13,8 @@ h1{font-size:1.6rem;margin:2px 0 2px;font-weight:700}
 label.chk{display:flex;align-items:flex-start;gap:8px;font-size:1rem;margin:7px 0;cursor:pointer}
 label.chk input{margin-top:4px;accent-color:var(--accent)}
 .rlabel{font-size:.75rem;color:var(--muted);margin-top:10px;display:block}
-.rtxt{width:100%;border:1px dashed var(--line);background:transparent;color:var(--ink);border-radius:6px;padding:7px 9px;font-family:inherit;font-size:1rem;margin:4px 0}
-.rtxt:focus{border-color:var(--accent);outline:none}
+.rtxt{width:100%;border:1px dashed var(--ctl);background:transparent;color:var(--ink);border-radius:6px;padding:7px 9px;font-family:inherit;font-size:1rem;margin:4px 0}
+.rtxt:focus{border-color:var(--accent)}
 .duo{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
 @media(max-width:600px){.duo{grid-template-columns:1fr}}
 .toolbar{position:sticky;top:8px;z-index:5;display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:var(--card);
@@ -39,7 +39,7 @@ label.chk input{margin-top:4px;accent-color:var(--accent)}
 }
 @media (hover: none){
   .toolbar button:hover{border-color:var(--line);filter:none}
-  .rtxt:hover{border-color:var(--line)}
+  .rtxt:hover{border-color:var(--ctl)}
 }
 @media (max-width: 760px){
   body{padding:14px max(14px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}

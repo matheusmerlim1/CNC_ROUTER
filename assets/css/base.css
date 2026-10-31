@@ -8,11 +8,13 @@
 :root{
   /* neutros grafite com viés azul-frio (escolhidos, não cinza puro) */
   --bg:#eceff3; --panel:#f6f8fb; --card:#ffffff;
-  --ink:#161c26; --muted:#5a6573; --line:#d6dce3; --cat:#e7ebf1;
+  --ink:#161c26; --muted:#5a6573; --line:#d6dce3; --cat:#e7ebf1; --ctl:#7b8594;
   /* acento blueprint blue — usado com parcimônia */
   --accent:#1f4fd8; --accent-ink:#ffffff; --accent-soft:#e6ecfb;
-  /* cor de estado (separada do acento) */
-  --ok:#0f7a3d; --warn:#b45309; --warn-soft:#fbeccd; --danger:#c0392b;
+  /* --ctl: borda de campo de texto. --line (1,4:1) some como contorno de controle; WCAG 1.4.11 pede 3:1
+     (#7b8594 dá 3,7:1 sobre --card e 3,2:1 sobre --bg; no escuro #6b7686 dá 3,7:1 sobre --card) */
+  /* cor de estado (separada do acento). --warn #a14a07: 5,1:1 sobre --warn-soft e --bg; o #b45309 dava 4,3 */
+  --ok:#0f7a3d; --warn:#a14a07; --warn-soft:#fbeccd; --danger:#c0392b;
   /* aço para o hero */
   --steel-1:#e2e7ed; --steel-2:#ccd3dc;
   --shadow:0 2px 10px rgba(20,30,50,.08);
@@ -27,7 +29,7 @@
 @media (prefers-color-scheme: dark){
   :root{
     --bg:#0f1218; --panel:#161b23; --card:#181d26;
-    --ink:#e7ebf1; --muted:#97a2b1; --line:#2a3140; --cat:#1e2530;
+    --ink:#e7ebf1; --muted:#97a2b1; --line:#2a3140; --cat:#1e2530; --ctl:#6b7686;
     --accent:#6f9bff; --accent-ink:#0b1220; --accent-soft:#1a2740;
     --ok:#45c46f; --warn:#eab35a; --warn-soft:#35301c; --danger:#e5675a;
     --steel-1:#1b212b; --steel-2:#141922;
@@ -37,14 +39,14 @@
 /* o toggle do usuário estampa data-theme na raiz e precisa vencer a media query nos dois sentidos */
 :root[data-theme="light"]{
   --bg:#eceff3; --panel:#f6f8fb; --card:#ffffff;
-  --ink:#161c26; --muted:#5a6573; --line:#d6dce3; --cat:#e7ebf1;
+  --ink:#161c26; --muted:#5a6573; --line:#d6dce3; --cat:#e7ebf1; --ctl:#7b8594;
   --accent:#1f4fd8; --accent-ink:#ffffff; --accent-soft:#e6ecfb;
-  --ok:#0f7a3d; --warn:#b45309; --warn-soft:#fbeccd; --danger:#c0392b;
+  --ok:#0f7a3d; --warn:#a14a07; --warn-soft:#fbeccd; --danger:#c0392b;
   --steel-1:#e2e7ed; --steel-2:#ccd3dc; --shadow:0 2px 10px rgba(20,30,50,.08);
 }
 :root[data-theme="dark"]{
   --bg:#0f1218; --panel:#161b23; --card:#181d26;
-  --ink:#e7ebf1; --muted:#97a2b1; --line:#2a3140; --cat:#1e2530;
+  --ink:#e7ebf1; --muted:#97a2b1; --line:#2a3140; --cat:#1e2530; --ctl:#6b7686;
   --accent:#6f9bff; --accent-ink:#0b1220; --accent-soft:#1a2740;
   --ok:#45c46f; --warn:#eab35a; --warn-soft:#35301c; --danger:#e5675a;
   --steel-1:#1b212b; --steel-2:#141922; --shadow:0 2px 14px rgba(0,0,0,.35);
@@ -145,3 +147,36 @@ h1,h2,h3{font-family:var(--font-head);text-wrap:balance;letter-spacing:-.01em}
 
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+
+/* rótulo só para leitor de tela */
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* "Pular para o conteúdo": escondido até receber foco pelo teclado */
+.pular{position:absolute;left:12px;top:-60px;z-index:2147483001;background:var(--card);color:var(--accent);
+  border:2px solid var(--accent);border-radius:8px;padding:10px 14px;font-weight:600}
+.pular:focus{top:12px}
+
+/* === Botão de volta ao portfólio ===
+   Veio de um <style> colado em cada página; mora aqui para as três páginas não terem CSS em bloco.
+   O <nav> que o envolve não tem estilo: o botão continua position:fixed no canto. */
+#mr-portfolio-btn {
+  position: fixed; top: 12px; right: 12px; z-index: 2147483000;
+  display: inline-flex; align-items: center; gap: .4rem;
+  padding: .42rem .8rem; border-radius: 999px;
+  font: 600 13px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #e8edf5; text-decoration: none; white-space: nowrap;
+  background: rgba(18,24,38,.92);
+  border: 1px solid rgba(88,166,255,.45);
+  box-shadow: 0 2px 12px rgba(0,0,0,.35);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  transition: transform .15s, border-color .15s, background .15s;
+}
+#mr-portfolio-btn:hover {
+  transform: translateY(-1px); color: #fff; text-decoration: none;
+  background: rgba(24,32,50,.96); border-color: #58a6ff;
+}
+#mr-portfolio-btn:focus-visible { outline: 2px solid #58a6ff; outline-offset: 2px; }
+@media (max-width: 520px) {
+  #mr-portfolio-btn { padding: .45rem; }
+  #mr-portfolio-btn span { display: none; }
+}
+@media print { #mr-portfolio-btn { display: none; } }
